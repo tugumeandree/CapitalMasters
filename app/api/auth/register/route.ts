@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       email: email.toLowerCase(),
       password: hashedPassword,
       name: accountType === 'corporate' && companyName ? companyName : name,
+      role: 'user',
       accountType,
       riskTolerance: 'moderate', // Default value, can be updated later
       memberSince: new Date(),

@@ -7,6 +7,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  role?: string;
   accountType?: string;
   riskTolerance?: string;
   memberSince?: string;
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (response.ok) {
           const data = await response.json();
+          console.log('Auth verify received user:', data.user);
           setUser(data.user);
         } else {
           localStorage.removeItem('token');
@@ -108,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await response.json();
+      console.log('Login received user:', data.user);
       localStorage.setItem('token', data.token);
       setUser(data.user);
     } catch (error) {

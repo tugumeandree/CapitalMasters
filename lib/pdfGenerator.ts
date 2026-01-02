@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { formatPrimaryAndSecondary } from './currency';
 
 interface PortfolioData {
   userName: string;
@@ -59,8 +60,10 @@ export function generatePortfolioStatement(
   doc.text('Portfolio Summary', 18, 72);
   
   doc.setFontSize(10);
-  doc.text(`Total Value: $${portfolio.totalValue.toLocaleString()}`, 18, 80);
-  doc.text(`Total Gain: $${portfolio.totalGain.toLocaleString()}`, 18, 86);
+  const totalVals = formatPrimaryAndSecondary(portfolio.totalValue);
+  const gainVals = formatPrimaryAndSecondary(portfolio.totalGain);
+  doc.text(`Total Value: ${totalVals.primary} (${totalVals.secondary})`, 18, 80);
+  doc.text(`Total Gain: ${gainVals.primary} (${gainVals.secondary})`, 18, 86);
   doc.text(`Return: +${portfolio.totalGainPercent}%`, 18, 92);
   
   // Holdings Table
@@ -70,13 +73,16 @@ export function generatePortfolioStatement(
   autoTable(doc, {
     startY: 112,
     head: [['Asset', 'Type', 'Value', 'Allocation', 'Change']],
-    body: portfolio.holdings.map(h => [
-      h.name,
-      h.type,
-      `$${h.value.toLocaleString()}`,
-      `${h.allocation}%`,
-      `${h.change > 0 ? '+' : ''}${h.change}%`
-    ]),
+    body: portfolio.holdings.map(h => {
+      const vals = formatPrimaryAndSecondary(h.value);
+      return [
+        h.name,
+        h.type,
+        `${vals.primary} (${vals.secondary})`,
+        `${h.allocation}%`,
+        `${h.change > 0 ? '+' : ''}${h.change}%`
+      ];
+    }),
     theme: 'striped',
     headStyles: { fillColor: [30, 64, 175] },
   });
@@ -89,12 +95,16 @@ export function generatePortfolioStatement(
   autoTable(doc, {
     startY: finalY + 20,
     head: [['Date', 'Description', 'Type', 'Amount']],
-    body: transactions.slice(0, 10).map(t => [
-      new Date(t.date).toLocaleDateString(),
-      t.description,
-      t.type,
-      `${t.amount > 0 ? '+' : ''}$${Math.abs(t.amount).toLocaleString()}`
-    ]),
+    body: transactions.slice(0, 10).map(t => {
+      const amt = Math.abs(t.amount);
+      const vals = formatPrimaryAndSecondary(amt);
+      return [
+        new Date(t.date).toLocaleDateString(),
+        t.description,
+        t.type,
+        `${t.amount > 0 ? '+' : '-'}${vals.primary} (${vals.secondary})`
+      ];
+    }),
     theme: 'striped',
     headStyles: { fillColor: [30, 64, 175] },
   });
@@ -146,13 +156,17 @@ export function generateTransactionReport(transactions: Transaction[], userName:
   autoTable(doc, {
     startY: 55,
     head: [['Date', 'Description', 'Type', 'Amount', 'Status']],
-    body: transactions.map(t => [
-      new Date(t.date).toLocaleDateString(),
-      t.description,
-      t.type,
-      `${t.amount > 0 ? '+' : ''}$${Math.abs(t.amount).toLocaleString()}`,
-      t.status
-    ]),
+    body: transactions.map(t => {
+      const amt = Math.abs(t.amount);
+      const vals = formatPrimaryAndSecondary(amt);
+      return [
+        new Date(t.date).toLocaleDateString(),
+        t.description,
+        t.type,
+        `${t.amount > 0 ? '+' : '-'}${vals.primary} (${vals.secondary})`,
+        t.status
+      ];
+    }),
     theme: 'striped',
     headStyles: { fillColor: [30, 64, 175] },
   });

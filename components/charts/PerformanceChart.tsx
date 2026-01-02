@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import { formatPrimaryAndSecondary } from '@/lib/currency';
 
 interface PerformanceChartProps {
   data: Array<{
@@ -27,7 +28,15 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
           <p className="font-semibold text-gray-900 mb-2">{label}</p>
           {payload.map((item: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: item.color }}>
-              {item.name}: ${item.value.toLocaleString()}
+              {item.name}: {(() => {
+                const v = formatPrimaryAndSecondary(item.value);
+                return (
+                  <>
+                    <span>{v.primary}</span>
+                    <span className="text-xs text-gray-500 ml-2">{v.secondary}</span>
+                  </>
+                );
+              })()}
             </p>
           ))}
         </div>

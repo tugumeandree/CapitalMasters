@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    console.log('[Dashboard API] Fetching data for user:', userId);
+
     const db = await getDatabase();
     
     // Fetch portfolio
@@ -41,23 +43,31 @@ export async function GET(request: NextRequest) {
       userId: new ObjectId(userId) 
     });
 
-    // Fetch recent transactions
+    console.log('[Dashboard API] Portfolio found:', !!portfolio, portfolio ? {
+      totalValue: portfolio.totalValue,
+      totalGain: portfolio.totalGain,
+      holdingsCount: portfolio.holdings?.length
+    } : null);
+
+    // Fetch ALL transactions (no limit for accurate calculations)
     const transactionsCollection = db.collection<Transaction>(collections.transactions);
     const transactions = await transactionsCollection
       .find({ userId: new ObjectId(userId) })
       .sort({ date: -1 })
-      .limit(10)
       .toArray();
 
-    // Fetch documents
+    console.log('[Dashboard API] Transactions found:', transactions.length);
+
+    // Fetch ALL documents (no limit)
     const documentsCollection = db.collection<Document>(collections.documents);
     const documents = await documentsCollection
       .find({ userId: new ObjectId(userId) })
       .sort({ uploadedAt: -1 })
-      .limit(10)
       .toArray();
 
-    return NextResponse.json({
+    console.log('[Dashboard API] Documents found:', documents.length);
+
+    const responseData = {
       portfolio: portfolio ? {
         totalValue: portfolio.totalValue,
         totalGain: portfolio.totalGain,
@@ -71,6 +81,10 @@ export async function GET(request: NextRequest) {
         description: t.description,
         status: t.status,
         date: t.date.toISOString(),
+        investmentType: t.investmentType,
+        commodityCompany: t.commodityCompany,
+        returnRate: t.returnRate,
+        maturityDate: t.maturityDate?.toISOString(),
       })),
       documents: documents.map(d => ({
         id: d._id?.toString(),
@@ -80,7 +94,15 @@ export async function GET(request: NextRequest) {
         size: d.size,
         date: d.uploadedAt.toISOString(),
       })),
+    };
+
+    console.log('[Dashboard API] Sending response:', {
+      hasPortfolio: !!responseData.portfolio,
+      transactionsCount: responseData.transactions.length,
+      documentsCount: responseData.documents.length,
     });
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error('Dashboard data error:', error);
     return NextResponse.json(

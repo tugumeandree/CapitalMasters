@@ -8,6 +8,7 @@ export interface User {
   email: string;
   password: string; // Hashed password
   name: string;
+  role?: 'user' | 'admin';
   accountType: 'individual' | 'corporate' | 'institutional';
   riskTolerance: 'conservative' | 'moderate' | 'aggressive';
   memberSince: Date;
@@ -69,12 +70,16 @@ export interface Holding {
 export interface Transaction {
   _id?: ObjectId;
   userId: ObjectId;
-  type: 'deposit' | 'withdrawal' | 'dividend' | 'fee';
+  type: 'deposit' | 'withdrawal' | 'dividend' | 'fee' | 'investment' | 'loan_given' | 'interest' | 'loan_repayment';
   amount: number;
   description: string;
   status: 'completed' | 'pending' | 'failed';
   date: Date;
   createdAt: Date;
+  investmentType?: 'equity' | 'bonds' | 'loan' | 'mutual_fund' | 'real_estate' | 'fixed_deposit' | 'commodities' | 'other';
+  commodityCompany?: 'Dregif Coffee Ltd (Coffee & Cocoa)' | 'Stanfield Commodities Exchange (Coffee)' | 'Both';
+  returnRate?: number;
+  maturityDate?: Date;
 }
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +23,10 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuth();
+  
+  useEffect(() => {
+    console.log('Navbar user:', user, 'role:', (user as any)?.role);
+  }, [user]);
 
   const isActive = (path: string) => pathname === path;
 
@@ -64,6 +68,14 @@ export default function Navbar() {
                 >
                   Portal
                 </Link>
+                {(user as any)?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Admin Portal
+                  </Link>
+                )}
                 <span className="text-gray-500 text-sm">{user?.name}</span>
                 <button
                   onClick={handleLogout}

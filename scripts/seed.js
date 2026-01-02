@@ -44,7 +44,7 @@ async function seed() {
       console.log('ℹ️  Demo user already exists');
     }
 
-    // Create demo portfolio
+    // Create demo portfolio (empty/zero for production use)
     const portfoliosCollection = db.collection('portfolios');
     const user = await usersCollection.findOne({ email: 'demo@capitalmasters.com' });
     
@@ -53,108 +53,24 @@ async function seed() {
     if (!existingPortfolio) {
       const demoPortfolio = {
         userId: user._id,
-        totalValue: 2847350,
-        totalGain: 347350,
-        totalGainPercent: 13.9,
-        holdings: [
-          { name: 'Equity Portfolio', type: 'Stocks', value: 1250000, allocation: 43.9, change: 5.2 },
-          { name: 'Fixed Income', type: 'Bonds', value: 800000, allocation: 28.1, change: 2.1 },
-          { name: 'Real Estate Fund', type: 'REIT', value: 500000, allocation: 17.6, change: 8.4 },
-          { name: 'Alternative Investments', type: 'Private Equity', value: 297350, allocation: 10.4, change: 12.7 },
-        ],
+        totalValue: 0,
+        totalGain: 0,
+        totalGainPercent: 0,
+        holdings: [],
         updatedAt: new Date(),
       };
 
       await portfoliosCollection.insertOne(demoPortfolio);
-      console.log('✅ Demo portfolio created');
+      console.log('✅ Demo portfolio created (0 values for production)');
     } else {
       console.log('ℹ️  Demo portfolio already exists');
     }
 
-    // Create demo transactions
-    const transactionsCollection = db.collection('transactions');
-    const existingTransactions = await transactionsCollection.countDocuments({ userId: user._id });
-    
-    if (existingTransactions === 0) {
-      const demoTransactions = [
-        {
-          userId: user._id,
-          type: 'deposit',
-          amount: 100000,
-          description: 'Initial investment',
-          status: 'completed',
-          date: new Date('2024-01-15'),
-          createdAt: new Date('2024-01-15'),
-        },
-        {
-          userId: user._id,
-          type: 'dividend',
-          amount: 3250,
-          description: 'Q1 2024 Dividend Payment',
-          status: 'completed',
-          date: new Date('2024-03-31'),
-          createdAt: new Date('2024-03-31'),
-        },
-        {
-          userId: user._id,
-          type: 'deposit',
-          amount: 50000,
-          description: 'Additional contribution',
-          status: 'completed',
-          date: new Date('2024-06-20'),
-          createdAt: new Date('2024-06-20'),
-        },
-        {
-          userId: user._id,
-          type: 'dividend',
-          amount: 3580,
-          description: 'Q2 2024 Dividend Payment',
-          status: 'completed',
-          date: new Date('2024-06-30'),
-          createdAt: new Date('2024-06-30'),
-        },
-      ];
+    // No transactions for demo user (production mode)
+    console.log('ℹ️  Demo user has no initial transactions (production mode)');
 
-      await transactionsCollection.insertMany(demoTransactions);
-      console.log('✅ Demo transactions created');
-    } else {
-      console.log('ℹ️  Demo transactions already exist');
-    }
-
-    // Create demo documents
-    const documentsCollection = db.collection('documents');
-    const existingDocuments = await documentsCollection.countDocuments({ userId: user._id });
-    
-    if (existingDocuments === 0) {
-      const demoDocuments = [
-        {
-          userId: user._id,
-          name: 'Q3 2024 Portfolio Statement',
-          type: 'statement',
-          url: '/documents/statement-q3-2024.pdf',
-          size: 245760,
-          uploadedAt: new Date('2024-10-01'),
-        },
-        {
-          userId: user._id,
-          name: '2023 Tax Documents',
-          type: 'tax',
-          url: '/documents/tax-2023.pdf',
-          size: 189440,
-          uploadedAt: new Date('2024-01-31'),
-        },
-        {
-          userId: user._id,
-          name: 'Annual Performance Report 2023',
-          type: 'report',
-          url: '/documents/annual-report-2023.pdf',
-          size: 524288,
-          uploadedAt: new Date('2024-02-15'),
-        },
-      ];
-
-      await documentsCollection.insertMany(demoDocuments);
-      console.log('✅ Demo documents created');
+    // No documents for demo user (production mode)
+    console.log('ℹ️  Demo user has no initial documents (production mode)');
     } else {
       console.log('ℹ️  Demo documents already exist');
     }

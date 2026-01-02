@@ -15,6 +15,7 @@ import { AssetAllocationChart } from '@/components/charts/AssetAllocationChart';
 import { PerformanceChart } from '@/components/charts/PerformanceChart';
 import { ProfileEditModal } from '@/components/ProfileEditModal';
 import { generatePortfolioStatement, generateTransactionReport } from '@/lib/pdfGenerator';
+import { formatPrimaryAndSecondary } from '@/lib/currency';
 
 interface DashboardData {
   portfolio: {
@@ -36,6 +37,10 @@ interface DashboardData {
     description: string;
     status: string;
     date: string;
+    investmentType?: string;
+    commodityCompany?: string;
+    returnRate?: number;
+    maturityDate?: string;
   }>;
   documents: Array<{
     id: string;
@@ -63,18 +68,40 @@ export default function ClientPortal() {
     }
   }, [isAuthenticated]);
 
+  // Auto-refresh when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isAuthenticated) {
+        console.log('Page visible again, refreshing data...');
+        fetchDashboardData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAuthenticated]);
+
   const fetchDashboardData = async () => {
     setLoadingData(true);
     try {
+      console.log('Fetching dashboard data...');
       const response = await fetch('/api/dashboard', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        cache: 'no-store', // Prevent caching
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Dashboard data received:', {
+          portfolioValue: data.portfolio?.totalValue,
+          transactionsCount: data.transactions?.length,
+          documentsCount: data.documents?.length,
+        });
         setDashboardData(data);
+      } else {
+        console.error('Dashboard fetch failed:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -90,12 +117,21 @@ export default function ClientPortal() {
 
     try {
       await login(loginForm.email, loginForm.password);
+      // Note: After successful login, the useEffect below will handle redirect
     } catch (error: any) {
       setLoginError(error.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoggingIn(false);
     }
   };
+
+  // Redirect admin users to admin portal after login
+  useEffect(() => {
+    if (isAuthenticated && (user as any)?.role === 'admin') {
+      console.log('Admin user detected, redirecting to admin portal...');
+      router.push('/admin');
+    }
+  }, [isAuthenticated, user, router]);
 
   if (loading) {
     return (
@@ -225,6 +261,17 @@ export default function ClientPortal() {
               </p>
             </div>
             <div className="flex items-center space-x-3">
+              <button
+                onClick={() => fetchDashboardData()}
+                disabled={loadingData}
+                className="btn-outline text-sm flex items-center gap-2"
+                title="Refresh data"
+              >
+                <svg className={`h-4 w-4 ${loadingData ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {loadingData ? 'Refreshing...' : 'Refresh'}
+              </button>
               {portfolio && dashboardData && (
                 <button
                   onClick={() => generatePortfolioStatement(
@@ -255,8 +302,31 @@ export default function ClientPortal() {
       </div>
 
       <div className="container-custom py-8">
-        {portfolio && (
+        {portfolio ? (
           <>
+            {/* Show helpful message if portfolio is empty */}
+            {portfolio.totalValue === 0 && dashboardData.transactions.length === 0 && (
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-r-lg">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-semibold text-blue-900">Welcome to CapitalMasters!</h3>
+                    <p className="mt-2 text-sm text-blue-700">
+                      Your investment account is ready. Our team will set up your portfolio and investments shortly. 
+                      You'll see your data here once it's been configured by our administrators.
+                    </p>
+                    <p className="mt-2 text-sm text-blue-700">
+                      In the meantime, feel free to explore the platform or contact your advisor if you have any questions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Portfolio Summary */}
             <div className="grid md:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-xl shadow-md p-6">
@@ -265,37 +335,89 @@ export default function ClientPortal() {
                   <BanknotesIcon className="h-5 w-5 text-primary-600" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">
-                  ${portfolio.totalValue.toLocaleString()}
+                    {(() => {
+                      const v = formatPrimaryAndSecondary(portfolio.totalValue);
+                      return (
+                        <>
+                          <span className="font-semibold">{v.primary}</span>
+                          <div className="text-xs text-gray-500">{v.secondary}</div>
+                        </>
+                      );
+                    })()}
                 </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Total Gain</span>
+                  <span className="text-gray-600 text-sm font-semibold">Total Contributions</span>
+                  <ArrowTrendingUpIcon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="text-3xl font-bold text-blue-600">
+                    {(() => {
+                      // Calculate total contributions (deposits, investments, loans given)
+                      const contributions = dashboardData.transactions.filter(t => 
+                        ['deposit', 'investment', 'loan_given'].includes(t.type)
+                      );
+                      const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                      const v = formatPrimaryAndSecondary(totalContributions);
+                      return (
+                        <>
+                          <span className="font-semibold">{v.primary}</span>
+                          <div className="text-xs text-gray-500">{v.secondary}</div>
+                        </>
+                      );
+                    })()}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-600 text-sm font-semibold">Total Payouts</span>
                   <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
                 </div>
                 <div className="text-3xl font-bold text-green-600">
-                  ${portfolio.totalGain.toLocaleString()}
+                    {(() => {
+                      // Calculate total payouts (withdrawals, dividends, interest, loan repayments)
+                      const payouts = dashboardData.transactions.filter(t => 
+                        ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                      );
+                      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                      const v = formatPrimaryAndSecondary(totalPayouts);
+                      return (
+                        <>
+                          <span className="font-semibold">{v.primary}</span>
+                          <div className="text-xs text-gray-500">{v.secondary}</div>
+                        </>
+                      );
+                    })()}
                 </div>
               </div>
 
               <div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Total Return</span>
-                  <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
+                  <span className="text-gray-600 text-sm font-semibold">Net Invested</span>
+                  <ChartBarIcon className="h-5 w-5 text-purple-600" />
                 </div>
-                <div className="text-3xl font-bold text-green-600">
-                  +{portfolio.totalGainPercent}%
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Holdings</span>
-                  <ChartBarIcon className="h-5 w-5 text-primary-600" />
-                </div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {portfolio.holdings.length}
+                <div className="text-3xl font-bold text-purple-600">
+                    {(() => {
+                      // Calculate net invested (contributions - payouts)
+                      const contributions = dashboardData.transactions.filter(t => 
+                        ['deposit', 'investment', 'loan_given'].includes(t.type)
+                      );
+                      const payouts = dashboardData.transactions.filter(t => 
+                        ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                      );
+                      const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                      const netInvested = totalContributions - totalPayouts;
+                      const v = formatPrimaryAndSecondary(netInvested);
+                      return (
+                        <>
+                          <span className="font-semibold">{v.primary}</span>
+                          <div className="text-xs text-gray-500">{v.secondary}</div>
+                        </>
+                      );
+                    })()}
                 </div>
               </div>
             </div>
@@ -318,7 +440,15 @@ export default function ClientPortal() {
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-gray-900">
-                            ${holding.value.toLocaleString()}
+                              {(() => {
+                                const v = formatPrimaryAndSecondary(holding.value);
+                                return (
+                                  <>
+                                    <span>{v.primary}</span>
+                                    <div className="text-xs text-gray-500">{v.secondary}</div>
+                                  </>
+                                );
+                              })()}
                           </div>
                           <div className={`text-sm ${holding.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {holding.change > 0 ? '+' : ''}{holding.change}%
@@ -343,26 +473,101 @@ export default function ClientPortal() {
             </h2>
             <div className="space-y-4">
               {dashboardData.transactions.length > 0 ? (
-                dashboardData.transactions.map((transaction) => (
-                  <div key={transaction.id} className="flex justify-between items-center border-b pb-4 last:border-b-0">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-primary-100 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <ClockIcon className="h-5 w-5 text-primary-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-sm">
-                          {transaction.description}
-                        </h3>
-                        <p className="text-xs text-gray-600">
-                          {new Date(transaction.date).toLocaleDateString()} • {transaction.type}
-                        </p>
+                dashboardData.transactions.map((transaction) => {
+                  const isCommodity = transaction.investmentType === 'commodities';
+                  const isInvestment = transaction.type === 'investment' || transaction.investmentType;
+                  
+                  return (
+                    <div key={transaction.id} className={`border rounded-lg p-4 ${isCommodity ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className={`${isCommodity ? 'bg-amber-200' : 'bg-primary-100'} w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                            <ClockIcon className={`h-5 w-5 ${isCommodity ? 'text-amber-700' : 'text-primary-600'}`} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-gray-900 text-sm">
+                                {transaction.description}
+                              </h3>
+                              {isInvestment && transaction.investmentType && (
+                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full capitalize">
+                                  {transaction.investmentType.replace('_', ' ')}
+                                </span>
+                              )}
+                              {transaction.status === 'pending' && (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+                                  Pending
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">
+                              {new Date(transaction.date).toLocaleDateString()} • {transaction.type.replace('_', ' ')}
+                            </p>
+                            
+                            {/* Commodity Investment Details */}
+                            {isCommodity && transaction.commodityCompany && (
+                              <div className="mt-2 space-y-1">
+                                <p className="text-xs text-amber-700 font-medium">
+                                  🌾 {transaction.commodityCompany}
+                                </p>
+                                {transaction.returnRate && (
+                                  <div className="text-xs text-gray-700 bg-white rounded p-2 space-y-1">
+                                    <p><strong>Return Rate:</strong> {transaction.returnRate}% monthly</p>
+                                    <p><strong>Investor Payout:</strong> 8% monthly (32% per 4 months)</p>
+                                    <p><strong>Admin Fee:</strong> 2% monthly (8% per 4 months)</p>
+                                    {transaction.type === 'investment' && (
+                                      <>
+                                        <div className="border-t pt-1 mt-1">
+                                          <p className="font-medium">Expected Returns (4-month cycle):</p>
+                                          <p>• Your Payout: UGX {(transaction.amount * 0.32).toLocaleString()}</p>
+                                          <p>• Total Value: UGX {(transaction.amount * 1.32).toLocaleString()}</p>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                                {transaction.maturityDate && (
+                                  <p className="text-xs text-amber-700">
+                                    <strong>Next Payout:</strong> {new Date(transaction.maturityDate).toLocaleDateString()}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* Other Investment Details */}
+                            {isInvestment && !isCommodity && transaction.returnRate && (
+                              <div className="mt-2 text-xs text-gray-700 bg-blue-50 rounded p-2">
+                                <p><strong>Expected Return:</strong> {transaction.returnRate}% annually</p>
+                                {transaction.maturityDate && (
+                                  <p><strong>Maturity Date:</strong> {new Date(transaction.maturityDate).toLocaleDateString()}</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className={`font-bold text-right ml-4 ${
+                          transaction.type === 'deposit' || transaction.type === 'dividend' || transaction.type === 'interest' 
+                            ? 'text-green-600' 
+                            : transaction.type === 'withdrawal' 
+                            ? 'text-red-600'
+                            : 'text-gray-900'
+                        }`}>
+                          {(transaction.type === 'deposit' || transaction.type === 'dividend' || transaction.type === 'interest') && '+'}
+                          {transaction.type === 'withdrawal' && '-'}
+                          {(() => {
+                            const v = formatPrimaryAndSecondary(Math.abs(transaction.amount));
+                            return (
+                              <>
+                                <div>{v.primary}</div>
+                                <div className="text-xs text-gray-500 font-normal">{v.secondary}</div>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
-                    <div className={`font-bold ${transaction.amount > 0 ? 'text-green-600' : 'text-gray-900'}`}>
-                      {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toLocaleString()}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-gray-600 text-center py-4">No transactions yet</p>
               )}
@@ -395,8 +600,69 @@ export default function ClientPortal() {
             />
           </div>
         </div>
-          </>
+
+        {/* Investment Breakdown by Type */}
+        {dashboardData.transactions.some(t => t.investmentType) && (
+          <div className="bg-white rounded-xl shadow-md p-6 mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Investment Breakdown
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(() => {
+                // Calculate totals by investment type
+                const investmentsByType: Record<string, { total: number; count: number }> = {};
+                dashboardData.transactions.forEach(t => {
+                  if (t.investmentType && t.type === 'investment') {
+                    if (!investmentsByType[t.investmentType]) {
+                      investmentsByType[t.investmentType] = { total: 0, count: 0 };
+                    }
+                    investmentsByType[t.investmentType].total += t.amount;
+                    investmentsByType[t.investmentType].count += 1;
+                  }
+                });
+
+                return Object.entries(investmentsByType).map(([type, data]) => {
+                  const isCommodity = type === 'commodities';
+                  return (
+                    <div key={type} className={`border rounded-lg p-4 ${isCommodity ? 'bg-amber-50 border-amber-200' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-gray-900 capitalize text-sm">
+                          {type.replace('_', ' ')}
+                        </h3>
+                        <span className={`px-2 py-1 ${isCommodity ? 'bg-amber-200 text-amber-700' : 'bg-blue-100 text-blue-700'} text-xs rounded-full`}>
+                          {data.count} {data.count === 1 ? 'investment' : 'investments'}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {(() => {
+                          const v = formatPrimaryAndSecondary(data.total);
+                          return (
+                            <>
+                              <div>{v.primary}</div>
+                              <div className="text-xs text-gray-500 font-normal">{v.secondary}</div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                      {isCommodity && (
+                        <div className="mt-2 pt-2 border-t border-amber-300">
+                          <p className="text-xs text-amber-700">
+                            <strong>Expected 4-month return:</strong>
+                          </p>
+                          <p className="text-xs text-amber-900 font-medium">
+                            UGX {(data.total * 0.32).toLocaleString()} (32%)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
         )}
+          </>
+        ) : null}
 
         {/* Documents */}
         <div className="bg-white rounded-xl shadow-md p-6">
@@ -460,19 +726,27 @@ export default function ClientPortal() {
               <div className="flex items-start justify-between border-b pb-3">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Account Type</p>
-                  <p className="font-semibold text-gray-900">Individual Investment Account</p>
+                  <p className="font-semibold text-gray-900 capitalize">
+                    {(user as any)?.accountType || 'Individual'} Investment Account
+                  </p>
                 </div>
               </div>
               <div className="flex items-start justify-between border-b pb-3">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Risk Tolerance</p>
-                  <p className="font-semibold text-gray-900">Moderate</p>
+                  <p className="font-semibold text-gray-900 capitalize">
+                    {(user as any)?.riskTolerance || 'Moderate'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Member Since</p>
-                  <p className="font-semibold text-gray-900">January 2023</p>
+                  <p className="font-semibold text-gray-900">
+                    {(user as any)?.memberSince 
+                      ? new Date((user as any).memberSince).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+                      : 'January 2023'}
+                  </p>
                 </div>
               </div>
             </div>

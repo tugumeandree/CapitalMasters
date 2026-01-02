@@ -51,4 +51,5 @@ export const collections = {
   portfolios: 'portfolios',
   transactions: 'transactions',
   documents: 'documents',
+  admin_logs: 'admin_logs',
 } as const;

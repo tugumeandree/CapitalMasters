@@ -23,6 +23,7 @@
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
     "jose": "^6.1.2",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.4",

@@ -1,14 +1,8 @@
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock user database
-const USERS = [
-  {
-    id: '1',
-    email: 'demo@capitalmasters.com',
-    name: 'Demo User',
-  },
-];
+import { getDatabase, collections } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+import { User } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,8 +23,10 @@ export async function GET(request: NextRequest) {
     try {
       const { payload } = await jwtVerify(token, secret);
       
-      // Find user
-      const user = USERS.find((u) => u.id === payload.userId);
+      // Fetch user from database
+      const db = await getDatabase();
+      const usersCollection = db.collection<User>(collections.users);
+      const user = await usersCollection.findOne({ _id: new ObjectId(payload.userId as string) });
       
       if (!user) {
         return NextResponse.json(
@@ -39,7 +35,19 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      return NextResponse.json({ user });
+      // Return user without password
+      const { password: _, _id, ...userWithoutPassword } = user;
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Verify returning user:', { id: _id.toString(), ...userWithoutPassword });
+      }
+      
+      return NextResponse.json({ 
+        user: {
+          id: _id.toString(),
+          ...userWithoutPassword,
+        }
+      });
     } catch (error) {
       return NextResponse.json(
         { message: 'Invalid token' },
