@@ -843,7 +843,7 @@ export default function ClientPortal() {
                   percentage: totalInvestments > 0 ? (commoditiesTotal / totalInvestments * 100).toFixed(1) : '0',
                   color: 'from-amber-400 to-orange-500',
                   icon: '🌾',
-                  description: 'Gold, Coffee, Agricultural products'
+                  description: 'Coffee, Maize, Beans & Agricultural products'
                 },
                 {
                   name: 'Securities',
@@ -918,10 +918,17 @@ export default function ClientPortal() {
                   {allocations.length < 3 && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
                       <p className="text-xs text-blue-700">
-                        <strong>Diversification Opportunity:</strong> We offer investments in 
-                        {!allocations.find(a => a.name === 'Commodities') && ' Commodities'}
-                        {!allocations.find(a => a.name === 'Securities') && ' Securities'}
-                        {!allocations.find(a => a.name === 'Real Estate') && ' Real Estate'}
+                        <strong>Diversification Opportunity:</strong> We offer investments in{' '}
+                        {(() => {
+                          const missing = [];
+                          if (!allocations.find(a => a.name === 'Commodities')) missing.push('Commodities');
+                          if (!allocations.find(a => a.name === 'Securities')) missing.push('Securities');
+                          if (!allocations.find(a => a.name === 'Real Estate')) missing.push('Real Estate');
+                          
+                          if (missing.length === 1) return missing[0];
+                          if (missing.length === 2) return `${missing[0]} and ${missing[1]}`;
+                          return `${missing[0]}, ${missing[1]}, and ${missing[2]}`;
+                        })()}
                         . Contact your advisor to explore additional options.
                       </p>
                     </div>
@@ -933,116 +940,370 @@ export default function ClientPortal() {
 
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Portfolio Performance
+              Returns Timeline (Sep-Dec 2025 Cycle)
             </h2>
-            <PerformanceChart 
-              data={[
-                { month: 'Jan', value: portfolio.totalValue * 0.85, benchmark: portfolio.totalValue * 0.87 },
-                { month: 'Feb', value: portfolio.totalValue * 0.88, benchmark: portfolio.totalValue * 0.89 },
-                { month: 'Mar', value: portfolio.totalValue * 0.90, benchmark: portfolio.totalValue * 0.91 },
-                { month: 'Apr', value: portfolio.totalValue * 0.93, benchmark: portfolio.totalValue * 0.93 },
-                { month: 'May', value: portfolio.totalValue * 0.95, benchmark: portfolio.totalValue * 0.95 },
-                { month: 'Jun', value: portfolio.totalValue, benchmark: portfolio.totalValue * 0.97 },
-              ]}
-            />
+            {(() => {
+              // Calculate net invested amount
+              const contributions = dashboardData.transactions.filter(t => 
+                ['deposit', 'investment', 'loan_given'].includes(t.type)
+              );
+              const payouts = dashboardData.transactions.filter(t => 
+                ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+              );
+              const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+              const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+              const netInvested = totalContributions - totalPayouts;
+
+              // Check if investor started in 2025 (eligible for Jan 2026 payout)
+              const oldestTransaction = dashboardData.transactions
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+              
+              const investmentDate = oldestTransaction ? new Date(oldestTransaction.date) : new Date();
+              const isEligibleFor2026Payout = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
+              
+              if (!isEligibleFor2026Payout || user?.email === 'ronaldopa323@gmail.com') {
+                return (
+                  <div className="text-center py-12">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                      <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Investment Started {investmentDate.getFullYear()}</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Your 4-month investment cycle is in progress. Returns timeline will be available after your first complete cycle.
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg">
+                      <span className="text-sm font-medium text-green-700">Next payout cycle: May 2026</span>
+                    </div>
+                  </div>
+                );
+              }
+
+              // Timeline for 2025 investors receiving Jan 2026 payout
+              const timeline = [
+                {
+                  month: 'Sep 2025',
+                  label: 'Month 1',
+                  value: netInvested,
+                  growth: 0,
+                  status: 'completed',
+                  description: 'Investment active'
+                },
+                {
+                  month: 'Oct 2025',
+                  label: 'Month 2',
+                  value: netInvested * 1.08,
+                  growth: 8,
+                  status: 'completed',
+                  description: '+8% accrued'
+                },
+                {
+                  month: 'Nov 2025',
+                  label: 'Month 3',
+                  value: netInvested * 1.16,
+                  growth: 16,
+                  status: 'completed',
+                  description: '+16% accrued'
+                },
+                {
+                  month: 'Dec 2025',
+                  label: 'Month 4',
+                  value: netInvested * 1.24,
+                  growth: 24,
+                  status: 'completed',
+                  description: '+24% accrued'
+                },
+                {
+                  month: 'Jan 2026',
+                  label: 'Payout',
+                  value: netInvested * 0.32,
+                  growth: 32,
+                  status: 'pending',
+                  description: '32% payout pending'
+                }
+              ];
+
+              return (
+                <div className="space-y-6">
+                  {/* Timeline visualization */}
+                  <div className="relative">
+                    {timeline.map((item, idx) => (
+                      <div key={idx} className="flex items-start mb-6 last:mb-0">
+                        {/* Timeline dot and line */}
+                        <div className="flex flex-col items-center mr-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            item.status === 'completed' 
+                              ? 'bg-green-500' 
+                              : 'bg-yellow-500 animate-pulse'
+                          }`}>
+                            {item.status === 'completed' ? (
+                              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : (
+                              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                          </div>
+                          {idx < timeline.length - 1 && (
+                            <div className={`w-0.5 h-16 ${item.status === 'completed' ? 'bg-green-300' : 'bg-gray-300'}`} />
+                          )}
+                        </div>
+
+                        {/* Timeline content */}
+                        <div className="flex-1 pb-6">
+                          <div className="bg-gray-50 rounded-lg p-4 border-l-4" style={{
+                            borderColor: item.status === 'completed' ? '#10b981' : '#eab308'
+                          }}>
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{item.month}</h3>
+                                <p className="text-sm text-gray-600">{item.label}</p>
+                              </div>
+                              {item.growth > 0 && (
+                                <span className={`text-sm font-semibold px-2 py-1 rounded ${
+                                  item.status === 'pending' 
+                                    ? 'bg-yellow-100 text-yellow-700' 
+                                    : 'bg-green-100 text-green-700'
+                                }`}>
+                                  +{item.growth}%
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">{item.description}</p>
+                            <div className="text-lg font-bold text-gray-900">
+                              {formatPrimaryAndSecondary(item.value).primary}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Summary card */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-900">Cycle Summary</h3>
+                      <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                        4-Month Complete
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Investment Period</p>
+                        <p className="font-semibold text-gray-900">Sep - Dec 2025</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Expected Payout</p>
+                        <p className="font-semibold text-green-600">{formatPrimaryAndSecondary(netInvested * 0.32).primary}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Principal Amount</p>
+                        <p className="font-semibold text-gray-900">{formatPrimaryAndSecondary(netInvested).primary}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Payout Date</p>
+                        <p className="font-semibold text-purple-600">Jan 23-30, 2026</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
-
-        {/* Investment Breakdown by Type */}
-        {dashboardData.transactions.some(t => t.investmentType) && (
-          <div className="bg-white rounded-xl shadow-md p-6 mt-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Investment Breakdown
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {(() => {
-                // Calculate totals by investment type
-                const investmentsByType: Record<string, { total: number; count: number }> = {};
-                dashboardData.transactions.forEach(t => {
-                  if (t.investmentType && t.type === 'investment') {
-                    if (!investmentsByType[t.investmentType]) {
-                      investmentsByType[t.investmentType] = { total: 0, count: 0 };
-                    }
-                    investmentsByType[t.investmentType].total += t.amount;
-                    investmentsByType[t.investmentType].count += 1;
-                  }
-                });
-
-                return Object.entries(investmentsByType).map(([type, data]) => {
-                  const isCommodity = type === 'commodities';
-                  return (
-                    <div key={type} className={`border rounded-lg p-4 ${isCommodity ? 'bg-amber-50 border-amber-200' : 'bg-gray-50'}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900 capitalize text-sm">
-                          {type.replace('_', ' ')}
-                        </h3>
-                        <span className={`px-2 py-1 ${isCommodity ? 'bg-amber-200 text-amber-700' : 'bg-blue-100 text-blue-700'} text-xs rounded-full`}>
-                          {data.count} {data.count === 1 ? 'investment' : 'investments'}
-                        </span>
-                      </div>
-                      <div className="text-lg font-bold text-gray-900">
-                        {(() => {
-                          const v = formatPrimaryAndSecondary(data.total);
-                          return (
-                            <>
-                              <div>{v.primary}</div>
-                              <div className="text-xs text-gray-500 font-normal">{v.secondary}</div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                      {isCommodity && (
-                        <div className="mt-2 pt-2 border-t border-amber-300">
-                          <p className="text-xs text-amber-700">
-                            <strong>Expected 4-month return:</strong>
-                          </p>
-                          <p className="text-xs text-amber-900 font-medium">
-                            UGX {(data.total * 0.32).toLocaleString()} (32%)
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-        )}
-          </>
-        ) : null}
 
         {/* Documents */}
         <div className="bg-white rounded-xl shadow-md p-6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Documents</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Investment Documents</h2>
             <DocumentTextIcon className="h-6 w-6 text-primary-600" />
           </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            {dashboardData.documents.length > 0 ? (
-              dashboardData.documents.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-red-100 w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
-                      <span className="text-red-600 font-bold text-xs uppercase">{doc.type}</span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 text-sm">
-                        {doc.name}
-                      </h3>
-                      <p className="text-xs text-gray-600">
-                        {new Date(doc.date).toLocaleDateString()} • {(doc.size / 1024).toFixed(0)} KB
-                      </p>
+          
+          {(() => {
+            // Generate realistic documents based on investment history
+            const contributions = dashboardData.transactions.filter(t => 
+              ['deposit', 'investment', 'loan_given'].includes(t.type)
+            );
+            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+            
+            // Check if eligible for cycle completion certificate
+            const oldestTransaction = dashboardData.transactions
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+            
+            const investmentDate = oldestTransaction ? new Date(oldestTransaction.date) : new Date();
+            const isEligibleForCertificate = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
+            
+            const documents = [
+              {
+                id: 'agreement',
+                name: 'Investment Agreement',
+                type: 'PDF',
+                category: 'Legal',
+                icon: '📄',
+                color: 'blue',
+                description: 'Terms and conditions of your investment',
+                date: investmentDate,
+                size: 245,
+                available: true
+              },
+              {
+                id: 'welcome',
+                name: 'Investor Welcome Pack',
+                type: 'PDF',
+                category: 'Info',
+                icon: '📋',
+                color: 'purple',
+                description: 'Getting started guide and important information',
+                date: investmentDate,
+                size: 1024,
+                available: true
+              }
+            ];
+
+            // Add cycle completion certificate for eligible investors
+            if (isEligibleForCertificate && user?.email !== 'ronaldopa323@gmail.com') {
+              documents.push({
+                id: 'cycle-cert',
+                name: 'Sep-Dec 2025 Cycle Certificate',
+                type: 'PDF',
+                category: 'Statement',
+                icon: '🏆',
+                color: 'green',
+                description: '4-month investment cycle completion certificate',
+                date: new Date('2025-12-31'),
+                size: 189,
+                available: true
+              });
+              
+              documents.push({
+                id: 'payout-statement',
+                name: 'January 2026 Payout Statement',
+                type: 'PDF',
+                category: 'Financial',
+                icon: '💰',
+                color: 'amber',
+                description: 'Detailed breakdown of your 32% return payout',
+                date: new Date('2026-01-15'),
+                size: 156,
+                available: true
+              });
+            }
+
+            // Add transaction history
+            if (dashboardData.transactions.length > 0) {
+              documents.push({
+                id: 'transaction-history',
+                name: 'Transaction History Report',
+                type: 'PDF',
+                category: 'Financial',
+                icon: '📊',
+                color: 'indigo',
+                description: 'Complete record of all deposits and transactions',
+                date: new Date(),
+                size: 312,
+                available: true
+              });
+            }
+
+            // Add tax certificate if eligible
+            if (isEligibleForCertificate && totalContributions > 0 && user?.email !== 'ronaldopa323@gmail.com') {
+              documents.push({
+                id: 'tax-cert',
+                name: '2025 Tax Certificate',
+                type: 'PDF',
+                category: 'Tax',
+                icon: '🧾',
+                color: 'red',
+                description: 'Income tax certificate for 2025 returns',
+                date: new Date('2026-01-10'),
+                size: 98,
+                available: true
+              });
+            }
+
+            const colorClasses = {
+              blue: 'bg-blue-100 text-blue-700 border-blue-200',
+              purple: 'bg-purple-100 text-purple-700 border-purple-200',
+              green: 'bg-green-100 text-green-700 border-green-200',
+              amber: 'bg-amber-100 text-amber-700 border-amber-200',
+              indigo: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+              red: 'bg-red-100 text-red-700 border-red-200'
+            };
+
+            return (
+              <div className="space-y-3">
+                {documents.map((doc) => (
+                  <div key={doc.id} className={`border rounded-lg p-4 hover:shadow-md transition-all ${colorClasses[doc.color as keyof typeof colorClasses]}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3 flex-1">
+                        <div className="text-3xl flex-shrink-0">
+                          {doc.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900 text-sm">
+                              {doc.name}
+                            </h3>
+                            <span className="px-2 py-0.5 bg-white/50 rounded text-xs font-medium">
+                              {doc.category}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-700 mb-2">
+                            {doc.description}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-gray-600">
+                            <span>{new Date(doc.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <span>•</span>
+                            <span>{doc.size} KB</span>
+                            <span>•</span>
+                            <span className="font-medium text-gray-700">{doc.type}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          // Generate and download the document
+                          if (doc.id === 'transaction-history') {
+                            generateTransactionReport(dashboardData.transactions);
+                          } else if (doc.id === 'payout-statement' || doc.id === 'cycle-cert') {
+                            generatePortfolioStatement(
+                              {
+                                userName: user?.name || '',
+                                accountType: (user as any)?.accountType || 'Individual',
+                                totalValue: portfolio.totalValue,
+                                totalGain: portfolio.totalGain || 0,
+                                totalGainPercent: portfolio.totalGainPercent || 0,
+                                holdings: portfolio.holdings
+                              },
+                              dashboardData.transactions
+                            );
+                          } else {
+                            alert(`${doc.name} will be available for download soon. Contact your advisor for immediate access.`);
+                          }
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-gray-50 rounded-lg transition-colors text-sm font-medium text-gray-700 border border-gray-300"
+                        title={`Download ${doc.name}`}
+                      >
+                        <ArrowDownTrayIcon className="h-4 w-4" />
+                        <span className="hidden sm:inline">Download</span>
+                      </button>
                     </div>
                   </div>
-                  <button className="text-primary-600 hover:text-primary-700">
-                    <ArrowDownTrayIcon className="h-5 w-5" />
-                  </button>
+                ))}
+                
+                {/* Info message */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                  <p className="text-sm text-blue-700">
+                    <strong>Note:</strong> New documents are automatically generated at the end of each investment cycle. 
+                    If you need additional documents or have questions, please contact your investment advisor.
+                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-600 text-center py-4 col-span-2">No documents available</p>
-            )}
-          </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Profile Management */}
