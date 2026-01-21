@@ -346,15 +346,20 @@ export default function ClientPortal() {
             {/* Portfolio Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               {user?.email === 'ronaldopa323@gmail.com' ? (
-                // Ronald just invested - show Total Value
+                // Ronald just invested - show Expected May Payout
                 <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Value</span>
-                    <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Expected May Payout</span>
+                    <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  <div className="text-2xl sm:text-3xl font-bold text-green-600">
                       {(() => {
-                        const v = formatPrimaryAndSecondary(portfolio.totalValue);
+                        const contributions = dashboardData.transactions.filter(t => 
+                          ['deposit', 'investment', 'loan_given'].includes(t.type)
+                        );
+                        const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                        const totalSeasonPayout = totalContributions * 0.08 * 4; // 32% for 4 months
+                        const v = formatPrimaryAndSecondary(totalSeasonPayout);
                         return (
                           <>
                             <span className="font-semibold">{v.primary}</span>
@@ -363,8 +368,9 @@ export default function ClientPortal() {
                         );
                       })()}
                   </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    Investment started January 2026
+                  <div className="mt-2 text-xs text-gray-600">
+                    <div className="font-semibold text-purple-600">Payment: May 23-30, 2026</div>
+                    <div className="text-xs text-gray-500">4-Month Cycle (Jan-Apr 2026)</div>
                   </div>
                 </div>
               ) : (
@@ -962,6 +968,141 @@ export default function ClientPortal() {
               const isEligibleFor2026Payout = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
               
               if (!isEligibleFor2026Payout || user?.email === 'ronaldopa323@gmail.com') {
+                // Ronald's Jan-April 2026 timeline
+                if (user?.email === 'ronaldopa323@gmail.com') {
+                  const timeline = [
+                    {
+                      month: 'Jan 2026',
+                      label: 'Month 1',
+                      value: netInvested,
+                      growth: 0,
+                      status: 'active',
+                      description: 'Investment active'
+                    },
+                    {
+                      month: 'Feb 2026',
+                      label: 'Month 2',
+                      value: netInvested * 1.08,
+                      growth: 8,
+                      status: 'pending',
+                      description: '+8% accrual pending'
+                    },
+                    {
+                      month: 'Mar 2026',
+                      label: 'Month 3',
+                      value: netInvested * 1.16,
+                      growth: 16,
+                      status: 'pending',
+                      description: '+16% accrual pending'
+                    },
+                    {
+                      month: 'Apr 2026',
+                      label: 'Month 4',
+                      value: netInvested * 1.24,
+                      growth: 24,
+                      status: 'pending',
+                      description: '+24% accrual pending'
+                    },
+                    {
+                      month: 'May 2026',
+                      label: 'Payout',
+                      value: netInvested * 0.32,
+                      growth: 32,
+                      status: 'pending',
+                      description: '32% payout scheduled'
+                    }
+                  ];
+                  
+                  return (
+                    <div className="space-y-6">
+                      {/* Timeline visualization */}
+                      <div className="relative">
+                        {timeline.map((item, idx) => (
+                          <div key={idx} className="flex items-start mb-6 last:mb-0">
+                            {/* Timeline dot and line */}
+                            <div className="flex flex-col items-center mr-4">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                item.status === 'active' 
+                                  ? 'bg-blue-500' 
+                                  : 'bg-gray-300'
+                              }`}>
+                                {item.status === 'active' ? (
+                                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                )}
+                              </div>
+                              {idx < timeline.length - 1 && (
+                                <div className={`w-0.5 h-16 ${item.status === 'active' ? 'bg-blue-300' : 'bg-gray-300'}`} />
+                              )}
+                            </div>
+
+                            {/* Timeline content */}
+                            <div className="flex-1 pb-6">
+                              <div className="bg-gray-50 rounded-lg p-4 border-l-4" style={{
+                                borderColor: item.status === 'active' ? '#3b82f6' : '#d1d5db'
+                              }}>
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <h3 className="font-semibold text-gray-900">{item.month}</h3>
+                                    <p className="text-sm text-gray-600">{item.label}</p>
+                                  </div>
+                                  {item.growth > 0 && (
+                                    <span className={`text-sm font-semibold px-2 py-1 rounded ${
+                                      item.status === 'active' 
+                                        ? 'bg-blue-100 text-blue-700' 
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      +{item.growth}%
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-600 mb-2">{item.description}</p>
+                                <div className="text-lg font-bold text-gray-900">
+                                  {formatPrimaryAndSecondary(item.value).primary}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Summary card */}
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-bold text-gray-900">Cycle Summary</h3>
+                          <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
+                            In Progress
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Investment Period</p>
+                            <p className="font-semibold text-gray-900">Jan - Apr 2026</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Expected Payout</p>
+                            <p className="font-semibold text-green-600">{formatPrimaryAndSecondary(netInvested * 0.32).primary}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Principal Amount</p>
+                            <p className="font-semibold text-gray-900">{formatPrimaryAndSecondary(netInvested).primary}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Payout Date</p>
+                            <p className="font-semibold text-purple-600">May 23-30, 2026</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                // For other non-2025 investors
                 return (
                   <div className="text-center py-12">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
