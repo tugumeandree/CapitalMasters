@@ -62,6 +62,7 @@ export default function ClientPortal() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -1405,29 +1406,61 @@ export default function ClientPortal() {
                         </div>
                       </div>
                       <button 
-                        onClick={() => {
-                          // Generate and download the document
-                          if (doc.id === 'transaction-history') {
-                            generateTransactionReport(dashboardData.transactions, user?.name || 'Client');
-                          } else if (doc.id === 'payout-statement' || doc.id === 'cycle-cert') {
-                            generatePortfolioStatement(
-                              {
-                                userName: user?.name || '',
-                                accountType: (user as any)?.accountType || 'Individual',
-                                totalValue: portfolio.totalValue,
-                                totalGain: portfolio.totalGain || 0,
-                                totalGainPercent: portfolio.totalGainPercent || 0,
-                                holdings: portfolio.holdings
-                              },
-                              dashboardData.transactions
-                            );
-                          } else {
-                            alert(`${doc.name} will be available for download soon. Contact your advisor for immediate access.`);
+                        onClick={async () => {
+                          try {
+                            setDownloadingDoc(doc.id);
+                            console.log('Generating PDF for:', doc.id);
+                            console.log('User:', user?.name);
+                            console.log('Portfolio:', portfolio);
+                            console.log('Transactions count:', dashboardData.transactions.length);
+                            
+                            // Generate and download the document
+                            if (doc.id === 'transaction-history') {
+                              console.log('Calling generateTransactionReport...');
+                              generateTransactionReport(dashboardData.transactions, user?.name || 'Client');
+                              console.log('Transaction report generated successfully');
+                            } else if (doc.id === 'payout-statement' || doc.id === 'cycle-cert') {
+                              console.log('Calling generatePortfolioStatement...');
+                              generatePortfolioStatement(
+                                {
+                                  userName: user?.name || '',
+                                  accountType: (user as any)?.accountType || 'Individual',
+                                  totalValue: portfolio.totalValue,
+                                  totalGain: portfolio.totalGain || 0,
+                                  totalGainPercent: portfolio.totalGainPercent || 0,
+                                  holdings: portfolio.holdings
+                                },
+                                dashboardData.transactions
+                              );
+                              console.log('Portfolio statement generated successfully');
+                            } else {
+                              alert(`${doc.name} will be available for download soon. Contact your advisor for immediate access.`);
+                            }
+                          } catch (error) {
+                            console.error('Error generating PDF:', error);
+                            alert('Failed to generate document. Please try again or contact support.');
+                          } finally {
+                            setDownloadingDoc(null);
                           }
                         }}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-gray-50 rounded-lg transition-colors text-sm font-medium text-gray-700 border border-gray-300"
+                        disabled={downloadingDoc === doc.id}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-gray-50 rounded-lg transition-colors text-sm font-medium text-gray-700 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         title={`Download ${doc.name}`}
                       >
+                        {downloadingDoc === doc.id ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="hidden sm:inline">Generating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ArrowDownTrayIcon className="h-4 w-4" />
+                            <span className="hidden sm:inline">Download</span>
+                          </>
+                        )}
                         <ArrowDownTrayIcon className="h-4 w-4" />
                         <span className="hidden sm:inline">Download</span>
                       </button>

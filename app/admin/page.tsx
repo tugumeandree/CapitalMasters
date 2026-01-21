@@ -712,22 +712,51 @@ export default function AdminPage() {
                                     </div>
                                     
                                     {/* User Stats */}
-                                    {u.role !== 'admin' && (
-                                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 space-y-2">
-                                        <div className="flex justify-between items-center">
-                                          <span className="text-xs font-medium text-gray-600">Portfolio Value</span>
-                                          <span className="text-sm font-bold text-gray-900">UGX {formatNumber(userPortfolio?.totalValue || 0)}</span>
+                                    {u.role !== 'admin' && (() => {
+                                      // Calculate expected payout based on investment date
+                                      const oldestTxn = userTransactions.sort((a, b) => 
+                                        new Date(a.date).getTime() - new Date(b.date).getTime()
+                                      )[0];
+                                      const investmentDate = oldestTxn ? new Date(oldestTxn.date) : new Date();
+                                      const isEligibleFor2026Jan = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
+                                      const isRonald = u.email === 'ronaldopa323@gmail.com';
+                                      
+                                      // Calculate net invested amount
+                                      const contributions = userTransactions.filter(t => 
+                                        ['deposit', 'investment', 'loan_given'].includes(t.type)
+                                      );
+                                      const payouts = userTransactions.filter(t => 
+                                        ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                                      );
+                                      const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
+                                      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                                      const netInvested = totalContribs - totalPayouts;
+                                      
+                                      // Calculate expected payout (32% for 4-month cycle)
+                                      const expectedPayout = netInvested * 0.32;
+                                      const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
+                                      
+                                      return (
+                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 space-y-2">
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs font-medium text-gray-600">Portfolio Value</span>
+                                            <span className="text-sm font-bold text-gray-900">UGX {formatNumber(userPortfolio?.totalValue || 0)}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs font-medium text-gray-600">Contributions</span>
+                                            <span className="text-sm font-bold text-blue-600">UGX {formatNumber(totalContributions)}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center border-t border-gray-200 pt-2 mt-2">
+                                            <span className="text-xs font-medium text-gray-600">Expected Payout ({payoutMonth})</span>
+                                            <span className="text-sm font-bold text-green-600">UGX {formatNumber(expectedPayout)}</span>
+                                          </div>
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs font-medium text-gray-600">Transactions</span>
+                                            <span className="text-sm font-bold text-gray-900">{userTransactions.length}</span>
+                                          </div>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                          <span className="text-xs font-medium text-gray-600">Contributions</span>
-                                          <span className="text-sm font-bold text-blue-600">UGX {formatNumber(totalContributions)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                          <span className="text-xs font-medium text-gray-600">Transactions</span>
-                                          <span className="text-sm font-bold text-gray-900">{userTransactions.length}</span>
-                                        </div>
-                                      </div>
-                                    )}
+                                      );
+                                    })()}
                                     
                                     {/* Action Buttons */}
                                     <div className="flex space-x-2">
@@ -767,6 +796,7 @@ export default function AdminPage() {
                                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Contact</th>
                                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Role</th>
                                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Portfolio</th>
+                                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Expected Payout</th>
                                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                               </thead>
@@ -805,6 +835,36 @@ export default function AdminPage() {
                                         <div className="text-sm font-semibold text-gray-900">
                                           {u.role !== 'admin' ? `UGX ${formatNumber(userPortfolio?.totalValue || 0)}` : 'N/A'}
                                         </div>
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap">
+                                        {u.role !== 'admin' ? (() => {
+                                          const userTransactions = transactions.filter(t => t.userId === u._id);
+                                          const oldestTxn = userTransactions.sort((a, b) => 
+                                            new Date(a.date).getTime() - new Date(b.date).getTime()
+                                          )[0];
+                                          const investmentDate = oldestTxn ? new Date(oldestTxn.date) : new Date();
+                                          const isEligibleFor2026Jan = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
+                                          const isRonald = u.email === 'ronaldopa323@gmail.com';
+                                          
+                                          const contributions = userTransactions.filter(t => 
+                                            ['deposit', 'investment', 'loan_given'].includes(t.type)
+                                          );
+                                          const payouts = userTransactions.filter(t => 
+                                            ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                                          );
+                                          const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
+                                          const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                                          const netInvested = totalContribs - totalPayouts;
+                                          const expectedPayout = netInvested * 0.32;
+                                          const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
+                                          
+                                          return (
+                                            <div>
+                                              <div className="text-sm font-semibold text-green-600">UGX {formatNumber(expectedPayout)}</div>
+                                              <div className="text-xs text-gray-500">{payoutMonth}</div>
+                                            </div>
+                                          );
+                                        })() : <div className="text-sm text-gray-500">N/A</div>}
                                       </td>
                                       <td className="px-6 py-4 whitespace-nowrap text-sm space-x-3">
                                         <button 
