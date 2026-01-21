@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Support both ObjectId and string-stored userId
     const userIdObj = new ObjectId(userId);
-    const userMatch = { $or: [{ userId: userIdObj }, { userId: userId }] };
+    const userMatch: any = { $or: [{ userId: userIdObj }, { userId: userId }] };
     
     // Fetch portfolio
     const portfoliosCollection = db.collection<Portfolio>(collections.portfolios);
