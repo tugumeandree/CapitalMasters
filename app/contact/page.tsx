@@ -171,7 +171,7 @@ export default function Contact() {
                       value={formData.phone}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+256 755017384"
                     />
                   </div>
 
@@ -274,7 +274,7 @@ export default function Contact() {
                       Phone
                     </h3>
                     <p className="text-gray-600">
-                      Main: +1 (555) 123-4567<br />
+                      Main: +256 755017384<br />
                       Toll Free: 1-800-CAPITAL<br />
                       Fax: +1 (555) 123-4568
                     </p>

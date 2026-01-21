@@ -113,7 +113,7 @@ export function ProfileEditModal({ isOpen, onClose, user, onUpdate }: ProfileEdi
               value={formData.phone}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+256 755017384"
             />
           </div>
 

@@ -24,6 +24,9 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuth();
   
+  // Check if user is on a portal page (client-portal or admin)
+  const isPortalPage = pathname?.startsWith('/client-portal') || pathname?.startsWith('/admin');
+  
   useEffect(() => {
     console.log('Navbar user:', user, 'role:', (user as any)?.role);
   }, [user]);
@@ -46,7 +49,8 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
-            {navigation.map((item) => (
+            {/* Only show website navigation when NOT on portal pages */}
+            {!isPortalPage && navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -66,7 +70,7 @@ export default function Navbar() {
                   href="/client-portal"
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium"
                 >
-                  Portal
+                  Client Portal
                 </Link>
                 {(user as any)?.role === 'admin' && (
                   <Link
@@ -76,7 +80,7 @@ export default function Navbar() {
                     Admin Portal
                   </Link>
                 )}
-                <span className="text-gray-500 text-sm">{user?.name}</span>
+                <span className="text-gray-500 text-sm">{user?.name || 'User'}</span>
                 <button
                   onClick={handleLogout}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
@@ -116,7 +120,8 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navigation.map((item) => (
+            {/* Only show website navigation when NOT on portal pages */}
+            {!isPortalPage && navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -138,10 +143,19 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                 >
-                  Portal
+                  Client Portal
                 </Link>
+                {(user as any)?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-md text-base font-medium bg-purple-600 text-white hover:bg-purple-700"
+                  >
+                    Admin Portal
+                  </Link>
+                )}
                 <div className="px-3 py-2 text-sm text-gray-500">
-                  {user?.name}
+                  {user?.name || 'User'}
                 </div>
                 <button
                   onClick={() => {

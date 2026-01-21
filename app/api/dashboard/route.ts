@@ -36,12 +36,14 @@ export async function GET(request: NextRequest) {
     console.log('[Dashboard API] Fetching data for user:', userId);
 
     const db = await getDatabase();
+
+    // Support both ObjectId and string-stored userId
+    const userIdObj = new ObjectId(userId);
+    const userMatch = { $or: [{ userId: userIdObj }, { userId: userId }] };
     
     // Fetch portfolio
     const portfoliosCollection = db.collection<Portfolio>(collections.portfolios);
-    const portfolio = await portfoliosCollection.findOne({ 
-      userId: new ObjectId(userId) 
-    });
+    const portfolio = await portfoliosCollection.findOne(userMatch);
 
     console.log('[Dashboard API] Portfolio found:', !!portfolio, portfolio ? {
       totalValue: portfolio.totalValue,
@@ -52,7 +54,7 @@ export async function GET(request: NextRequest) {
     // Fetch ALL transactions (no limit for accurate calculations)
     const transactionsCollection = db.collection<Transaction>(collections.transactions);
     const transactions = await transactionsCollection
-      .find({ userId: new ObjectId(userId) })
+      .find(userMatch)
       .sort({ date: -1 })
       .toArray();
 
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
     // Fetch ALL documents (no limit)
     const documentsCollection = db.collection<Document>(collections.documents);
     const documents = await documentsCollection
-      .find({ userId: new ObjectId(userId) })
+      .find(userMatch)
       .sort({ uploadedAt: -1 })
       .toArray();
 
@@ -72,28 +74,91 @@ export async function GET(request: NextRequest) {
         totalValue: portfolio.totalValue,
         totalGain: portfolio.totalGain,
         totalGainPercent: portfolio.totalGainPercent,
-        holdings: portfolio.holdings,
+        holdings: portfolio.holdings || [],
       } : null,
-      transactions: transactions.map(t => ({
-        id: t._id?.toString(),
-        type: t.type,
-        amount: t.amount,
-        description: t.description,
-        status: t.status,
-        date: t.date.toISOString(),
-        investmentType: t.investmentType,
-        commodityCompany: t.commodityCompany,
-        returnRate: t.returnRate,
-        maturityDate: t.maturityDate?.toISOString(),
-      })),
-      documents: documents.map(d => ({
-        id: d._id?.toString(),
-        name: d.name,
-        type: d.type,
-        url: d.url,
-        size: d.size,
-        date: d.uploadedAt.toISOString(),
-      })),
+      transactions: transactions.map(t => {
+        try {
+          let dateStr: string;
+          if (!t.date) {
+            dateStr = new Date().toISOString();
+          } else if (t.date instanceof Date) {
+            dateStr = t.date.toISOString();
+          } else if (typeof t.date === 'string') {
+            dateStr = new Date(t.date).toISOString();
+          } else {
+            dateStr = new Date().toISOString();
+          }
+
+          let maturityDateStr: string | undefined;
+          if (t.maturityDate) {
+            if (t.maturityDate instanceof Date) {
+              maturityDateStr = t.maturityDate.toISOString();
+            } else if (typeof t.maturityDate === 'string') {
+              maturityDateStr = new Date(t.maturityDate).toISOString();
+            }
+          }
+
+          return {
+            id: t._id?.toString(),
+            type: t.type,
+            amount: t.amount,
+            description: t.description,
+            status: t.status,
+            date: dateStr,
+            investmentType: t.investmentType,
+            commodityCompany: t.commodityCompany,
+            returnRate: t.returnRate,
+            maturityDate: maturityDateStr,
+          };
+        } catch (err) {
+          console.error('Error processing transaction:', t, err);
+          return {
+            id: t._id?.toString(),
+            type: t.type,
+            amount: t.amount,
+            description: t.description,
+            status: t.status,
+            date: new Date().toISOString(),
+            investmentType: t.investmentType,
+            commodityCompany: t.commodityCompany,
+            returnRate: t.returnRate,
+            maturityDate: undefined,
+          };
+        }
+      }),
+      documents: documents.map(d => {
+        try {
+          let dateStr: string;
+          if (!d.uploadedAt) {
+            dateStr = new Date().toISOString();
+          } else if (d.uploadedAt instanceof Date) {
+            dateStr = d.uploadedAt.toISOString();
+          } else if (typeof d.uploadedAt === 'string') {
+            dateStr = new Date(d.uploadedAt).toISOString();
+          } else {
+            dateStr = new Date().toISOString();
+          }
+
+          return {
+            id: d._id?.toString(),
+            name: d.name,
+            type: d.type,
+            url: d.url,
+            size: d.size,
+            date: dateStr,
+          };
+        } catch (err) {
+          console.error('Error processing document:', d, err);
+          return {
+            id: d._id?.toString(),
+            name: d.name,
+            type: d.type,
+            url: d.url,
+            size: d.size,
+            date: new Date().toISOString(),
+          };
+        }
+      }),
     };
 
     console.log('[Dashboard API] Sending response:', {

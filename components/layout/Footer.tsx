@@ -40,7 +40,7 @@ export default function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <PhoneIcon className="h-5 w-5 text-primary-400" />
-                <span>+1 (555) 123-4567</span>
+                <span>+256 755017384</span>
               </div>
               <div className="flex items-center space-x-2">
                 <EnvelopeIcon className="h-5 w-5 text-primary-400" />

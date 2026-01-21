@@ -29,7 +29,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-lg font-bold">CapitalMasters</div>
-                  <div className="text-xs text-primary-100">Investment Excellence Since 2008</div>
+                  <div className="text-xs text-primary-100">Investment Excellence Since 2025</div>
                 </div>
               </div>
               

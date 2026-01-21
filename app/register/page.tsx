@@ -260,7 +260,7 @@ export default function Register() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="+1 (555) 123-4567"
+                placeholder="+256 755017384"
               />
             </div>
 
