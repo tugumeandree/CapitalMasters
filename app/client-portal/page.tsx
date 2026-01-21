@@ -345,23 +345,72 @@ export default function ClientPortal() {
 
             {/* Portfolio Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Value</span>
-                  <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              {user?.email === 'ronaldopa323@gmail.com' ? (
+                // Ronald just invested - show Total Value
+                <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Value</span>
+                    <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                      {(() => {
+                        const v = formatPrimaryAndSecondary(portfolio.totalValue);
+                        return (
+                          <>
+                            <span className="font-semibold">{v.primary}</span>
+                            <div className="text-xs text-gray-500">{v.secondary}</div>
+                          </>
+                        );
+                      })()}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    Investment started January 2026
+                  </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900">
-                    {(() => {
-                      const v = formatPrimaryAndSecondary(portfolio.totalValue);
-                      return (
-                        <>
-                          <span className="font-semibold">{v.primary}</span>
-                          <div className="text-xs text-gray-500">{v.secondary}</div>
-                        </>
-                      );
-                    })()}
+              ) : (
+                // Other investors - show January Payout
+                <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Expected January Payout</span>
+                    <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-bold text-green-600">
+                      {(() => {
+                        // Calculate 8% payout (10% gross - 2% fees)
+                        const grossPayout = portfolio.totalValue * 0.10;
+                        const netPayout = portfolio.totalValue * 0.08;
+                        const fees = portfolio.totalValue * 0.02;
+                        const v = formatPrimaryAndSecondary(netPayout);
+                        return (
+                          <>
+                            <span className="font-semibold">{v.primary}</span>
+                            <div className="text-xs text-gray-500">{v.secondary}</div>
+                          </>
+                        );
+                      })()}
+                  </div>
+                  <div className="mt-3 text-xs text-gray-600 space-y-1">
+                    <div className="font-semibold text-purple-600">Payment: Jan 23-30, 2026</div>
+                    <div className="border-t pt-2 mt-2">
+                      <div className="flex justify-between">
+                        <span>Gross Return (10%):</span>
+                        <span className="font-semibold">{formatPrimaryAndSecondary(portfolio.totalValue * 0.10).primary}</span>
+                      </div>
+                      <div className="flex justify-between text-red-600">
+                        <span>Fees (2%):</span>
+                        <span className="font-semibold">-{formatPrimaryAndSecondary(portfolio.totalValue * 0.02).primary}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-green-600 border-t pt-1 mt-1">
+                        <span>Net Payout (8%):</span>
+                        <span>{formatPrimaryAndSecondary(portfolio.totalValue * 0.08).primary}</span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2 italic">
+                      *Fees cover transaction costs, taxes, service charges, and operational expenses
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
