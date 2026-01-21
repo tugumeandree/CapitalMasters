@@ -843,7 +843,7 @@ export default function ClientPortal() {
                   percentage: totalInvestments > 0 ? (commoditiesTotal / totalInvestments * 100).toFixed(1) : '0',
                   color: 'from-amber-400 to-orange-500',
                   icon: '🌾',
-                  description: 'Coffee, Maize, Beans & Agricultural products'
+                  description: 'Coffee, Cocoa & Agricultural products'
                 },
                 {
                   name: 'Securities',
