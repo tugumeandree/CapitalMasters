@@ -376,10 +376,21 @@ export default function ClientPortal() {
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-green-600">
                       {(() => {
-                        // Calculate 8% payout (10% gross - 2% fees)
-                        const grossPayout = portfolio.totalValue * 0.10;
-                        const netPayout = portfolio.totalValue * 0.08;
-                        const fees = portfolio.totalValue * 0.02;
+                        // Calculate net invested amount from transactions
+                        const contributions = dashboardData.transactions.filter(t => 
+                          ['deposit', 'investment', 'loan_given'].includes(t.type)
+                        );
+                        const payouts = dashboardData.transactions.filter(t => 
+                          ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                        );
+                        const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                        const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                        const netInvested = totalContributions - totalPayouts;
+                        
+                        // Calculate 8% payout (10% gross - 2% fees) based on net invested
+                        const grossPayout = netInvested * 0.10;
+                        const netPayout = netInvested * 0.08;
+                        const fees = netInvested * 0.02;
                         const v = formatPrimaryAndSecondary(netPayout);
                         return (
                           <>
@@ -394,15 +405,54 @@ export default function ClientPortal() {
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
                         <span>Gross Return (10%):</span>
-                        <span className="font-semibold">{formatPrimaryAndSecondary(portfolio.totalValue * 0.10).primary}</span>
+                        <span className="font-semibold">
+                          {(() => {
+                            const contributions = dashboardData.transactions.filter(t => 
+                              ['deposit', 'investment', 'loan_given'].includes(t.type)
+                            );
+                            const payouts = dashboardData.transactions.filter(t => 
+                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                            );
+                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalPayouts;
+                            return formatPrimaryAndSecondary(netInvested * 0.10).primary;
+                          })()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-red-600">
                         <span>Fees (2%):</span>
-                        <span className="font-semibold">-{formatPrimaryAndSecondary(portfolio.totalValue * 0.02).primary}</span>
+                        <span className="font-semibold">
+                          -{(() => {
+                            const contributions = dashboardData.transactions.filter(t => 
+                              ['deposit', 'investment', 'loan_given'].includes(t.type)
+                            );
+                            const payouts = dashboardData.transactions.filter(t => 
+                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                            );
+                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalPayouts;
+                            return formatPrimaryAndSecondary(netInvested * 0.02).primary;
+                          })()}
+                        </span>
                       </div>
                       <div className="flex justify-between font-semibold text-green-600 border-t pt-1 mt-1">
                         <span>Net Payout (8%):</span>
-                        <span>{formatPrimaryAndSecondary(portfolio.totalValue * 0.08).primary}</span>
+                        <span>
+                          {(() => {
+                            const contributions = dashboardData.transactions.filter(t => 
+                              ['deposit', 'investment', 'loan_given'].includes(t.type)
+                            );
+                            const payouts = dashboardData.transactions.filter(t => 
+                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                            );
+                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalPayouts;
+                            return formatPrimaryAndSecondary(netInvested * 0.08).primary;
+                          })()}
+                        </span>
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 mt-2 italic">
@@ -488,25 +538,109 @@ export default function ClientPortal() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
-              {/* Holdings */}
+              {/* Investment Breakdown */}
               <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-                  Portfolio Holdings
+                  Investment Breakdown
                 </h2>
                 <div className="space-y-4">
-                  {portfolio.holdings.map((holding, idx) => (
-                    <div key={idx} className="border-b pb-4 last:border-b-0">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{holding.name}</h3>
-                          <p className="text-xs sm:text-sm text-gray-600">
-                            {holding.type} • {holding.allocation}% of portfolio
-                          </p>
+                  {(() => {
+                    // Calculate actual breakdown from transactions
+                    const commoditiesTotal = dashboardData.transactions
+                      .filter(t => t.type === 'deposit' && t.investmentType === 'commodities')
+                      .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const equityTotal = dashboardData.transactions
+                      .filter(t => t.type === 'deposit' && t.investmentType === 'equity')
+                      .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const totalInvested = commoditiesTotal + equityTotal;
+                    
+                    // Get unique commodities from transactions
+                    const commodityTypes = [...new Set(
+                      dashboardData.transactions
+                        .filter(t => t.investmentType === 'commodities' && t.commodityCompany)
+                        .map(t => t.commodityCompany)
+                    )];
+
+                    const investments = [];
+                    
+                    // Add commodities if any
+                    if (commoditiesTotal > 0) {
+                      if (commodityTypes.length > 0) {
+                        // Show individual commodities
+                        commodityTypes.forEach(commodity => {
+                          const commodityAmount = dashboardData.transactions
+                            .filter(t => t.commodityCompany === commodity)
+                            .reduce((sum, t) => sum + t.amount, 0);
+                          
+                          const allocation = totalInvested > 0 ? (commodityAmount / totalInvested * 100).toFixed(1) : 0;
+                          
+                          investments.push({
+                            name: `${commodity} Commodities`,
+                            type: 'Commodities Trading',
+                            value: commodityAmount,
+                            allocation: parseFloat(allocation),
+                            description: 'Fixed-term commodity trading investment'
+                          });
+                        });
+                      } else {
+                        // Show general commodities
+                        const allocation = totalInvested > 0 ? (commoditiesTotal / totalInvested * 100).toFixed(1) : 0;
+                        investments.push({
+                          name: 'Commodities Portfolio',
+                          type: 'Commodities Trading',
+                          value: commoditiesTotal,
+                          allocation: parseFloat(allocation),
+                          description: 'Diversified commodity trading investments'
+                        });
+                      }
+                    }
+                    
+                    // Add equity if any
+                    if (equityTotal > 0) {
+                      const allocation = totalInvested > 0 ? (equityTotal / totalInvested * 100).toFixed(1) : 0;
+                      investments.push({
+                        name: 'Equity Investments',
+                        type: 'Equity',
+                        value: equityTotal,
+                        allocation: parseFloat(allocation),
+                        description: 'Stock market and equity holdings'
+                      });
+                    }
+
+                    // Show message if no investments
+                    if (investments.length === 0) {
+                      return (
+                        <div className="text-center py-8 text-gray-500">
+                          <p className="text-sm">Your investments will appear here once processed by our team.</p>
                         </div>
-                        <div className="text-left sm:text-right">
-                          <div className="font-bold text-gray-900">
+                      );
+                    }
+
+                    return investments.map((investment, idx) => (
+                      <div key={idx} className="border-b pb-4 last:border-b-0">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                                <span className="text-white font-bold text-lg">
+                                  {investment.name.charAt(0)}
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{investment.name}</h3>
+                                <p className="text-xs text-gray-500">{investment.type}</p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-2 ml-12">
+                              {investment.description}
+                            </p>
+                          </div>
+                          <div className="text-left sm:text-right ml-12 sm:ml-0">
+                            <div className="font-bold text-gray-900 text-sm sm:text-base">
                               {(() => {
-                                const v = formatPrimaryAndSecondary(holding.value);
+                                const v = formatPrimaryAndSecondary(investment.value);
                                 return (
                                   <>
                                     <span>{v.primary}</span>
@@ -514,22 +648,44 @@ export default function ClientPortal() {
                                   </>
                                 );
                               })()}
-                          </div>
-                          <div className={`text-sm ${holding.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {holding.change > 0 ? '+' : ''}{holding.change}%
+                            </div>
+                            <div className="text-xs text-purple-600 font-semibold mt-1">
+                              {investment.allocation}% of total
+                            </div>
                           </div>
                         </div>
+                        <div className="bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="bg-gradient-to-r from-amber-500 to-orange-500 h-2.5 rounded-full transition-all duration-500"
+                            style={{ width: `${investment.allocation}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-primary-600 h-2 rounded-full"
-                          style={{ width: `${holding.allocation}%` }}
-                        />
+                    ));
+                  })()}
+                </div>
+                
+                {/* Investment Summary */}
+                <div className="mt-6 pt-4 border-t">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">Total Invested Capital</span>
+                    <span className="font-bold text-gray-900">
+                      {(() => {
+                        const totalInvested = dashboardData.transactions
+                          .filter(t => t.type === 'deposit')
+                          .reduce((sum, t) => sum + t.amount, 0);
+                        return formatPrimaryAndSecondary(totalInvested).primary;
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span className="text-gray-600">Current Value</span>
+                    <span className="font-bold text-green-600">
+                      {formatPrimaryAndSecondary(portfolio.totalValue).primary}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
           {/* Recent Transactions */}
           <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
