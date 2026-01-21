@@ -165,12 +165,6 @@ export default function ClientPortal() {
               </div>
             )}
 
-            <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
-              <strong>Demo Credentials:</strong><br />
-              Email: demo@capitalmasters.com<br />
-              Password: demo123
-            </div>
-
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -199,7 +193,7 @@ export default function ClientPortal() {
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                     required
                     className="input-field pr-12"
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                   />
                   <button
                     type="button"
