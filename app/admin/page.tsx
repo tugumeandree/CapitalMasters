@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 type Tab = 'users' | 'portfolios' | 'transactions' | 'contributions';
 
@@ -63,6 +65,176 @@ export default function AdminPage() {
     const targetMonth = nextMonth !== undefined ? nextMonth : allowedPayoutMonths[0];
     const targetYear = nextMonth !== undefined ? year : year + 1;
     return new Date(Date.UTC(targetYear, targetMonth, 1)).toISOString().split('T')[0];
+  };
+
+  // Export functions
+  const exportToPDF = (data: any[], title: string, columns: string[], rowGenerator: (item: any) => any[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    
+    // Header
+    doc.setFillColor(30, 64, 175);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text('CAPITALMASTERS', pageWidth / 2, 15, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Admin Dashboard Report', pageWidth / 2, 22, { align: 'center' });
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-US')}`, pageWidth / 2, 28, { align: 'center' });
+    
+    // Title
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 64, 175);
+    doc.text(title, 14, 48);
+    
+    // Table
+    autoTable(doc, {
+      startY: 55,
+      head: [columns],
+      body: data.map(rowGenerator),
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [30, 64, 175],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      bodyStyles: { fontSize: 8 },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
+    });
+    
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+    }
+    
+    doc.save(`CapitalMasters_${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportToExcel = (data: any[], title: string, columns: string[], rowGenerator: (item: any) => any[]) => {
+    const csvContent = [
+      columns.join(','),
+      ...data.map(item => rowGenerator(item).map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `CapitalMasters_${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportUsers = (format: 'pdf' | 'excel') => {
+    const columns = ['Name', 'Email', 'Role', 'Contact', 'Portfolio Value', 'Expected Payout', 'Payout Month'];
+    const rowGenerator = (u: any) => {
+      const userPortfolio = portfolios.find(p => p.userId === u._id);
+      const userTransactions = transactions.filter(t => t.userId === u._id);
+      const oldestTxn = [...userTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+      const investmentDate = oldestTxn ? new Date(oldestTxn.date) : new Date();
+      const isEligibleFor2026Jan = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
+      const isRonald = u.email === 'ronaldopa323@gmail.com';
+      const contributions = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
+      const payouts = userTransactions.filter(t => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
+      const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
+      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+      const netInvested = totalContribs - totalPayouts;
+      const expectedPayout = netInvested * 0.32;
+      const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
+      
+      return [
+        u.name || 'N/A',
+        u.email,
+        u.role === 'admin' ? 'Admin' : 'User',
+        u.contact || 'N/A',
+        u.role !== 'admin' ? `UGX ${formatNumber(userPortfolio?.totalValue || 0)}` : 'N/A',
+        u.role !== 'admin' ? `UGX ${formatNumber(expectedPayout)}` : 'N/A',
+        u.role !== 'admin' ? payoutMonth : 'N/A'
+      ];
+    };
+    
+    if (format === 'pdf') {
+      exportToPDF(users, 'Users Report', columns, rowGenerator);
+    } else {
+      exportToExcel(users, 'Users Report', columns, rowGenerator);
+    }
+  };
+
+  const exportContributions = (format: 'pdf' | 'excel') => {
+    const contributions = users.filter(u => u.role !== 'admin').map(u => {
+      const userTransactions = transactions.filter(t => t.userId === u._id);
+      const deposits = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
+      const totalContributions = deposits.reduce((sum, t) => sum + t.amount, 0);
+      return { user: u, total: totalContributions, count: deposits.length };
+    });
+    
+    const columns = ['Investor Name', 'Email', 'Total Contributions', 'Number of Deposits'];
+    const rowGenerator = (item: any) => [
+      item.user.name || 'N/A',
+      item.user.email,
+      `UGX ${formatNumber(item.total)}`,
+      item.count.toString()
+    ];
+    
+    if (format === 'pdf') {
+      exportToPDF(contributions, 'Contributions Report', columns, rowGenerator);
+    } else {
+      exportToExcel(contributions, 'Contributions Report', columns, rowGenerator);
+    }
+  };
+
+  const exportPortfolios = (format: 'pdf' | 'excel') => {
+    const columns = ['User', 'Email', 'Total Value', 'Total Gain', 'Gain %', 'Holdings'];
+    const rowGenerator = (p: any) => {
+      const user = users.find(u => u._id === p.userId);
+      return [
+        user?.name || 'N/A',
+        user?.email || 'N/A',
+        `UGX ${formatNumber(p.totalValue || 0)}`,
+        `UGX ${formatNumber(p.totalGain || 0)}`,
+        `${p.totalGainPercent || 0}%`,
+        (p.holdings?.length || 0).toString()
+      ];
+    };
+    
+    if (format === 'pdf') {
+      exportToPDF(portfolios, 'Portfolios Report', columns, rowGenerator);
+    } else {
+      exportToExcel(portfolios, 'Portfolios Report', columns, rowGenerator);
+    }
+  };
+
+  const exportTransactions = (format: 'pdf' | 'excel') => {
+    const columns = ['Date', 'User', 'Type', 'Amount', 'Description', 'Status'];
+    const rowGenerator = (t: any) => {
+      const user = users.find(u => u._id === t.userId);
+      return [
+        new Date(t.date).toLocaleDateString('en-US'),
+        user?.name || 'N/A',
+        t.type,
+        `UGX ${formatNumber(Math.abs(t.amount))}`,
+        t.description || 'N/A',
+        t.status
+      ];
+    };
+    
+    if (format === 'pdf') {
+      exportToPDF(transactions, 'Transactions Report', columns, rowGenerator);
+    } else {
+      exportToExcel(transactions, 'Transactions Report', columns, rowGenerator);
+    }
   };
 
   useEffect(() => {
@@ -442,7 +614,7 @@ export default function AdminPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           </div>
         ) : (
-          <>
+          <div>
             {/* Users Tab */}
             {activeTab === 'users' && (
               <div>
@@ -451,13 +623,36 @@ export default function AdminPage() {
                     <h2 className="text-2xl font-bold text-gray-900">Manage Users</h2>
                     <p className="text-gray-600 mt-1">View and manage all registered users</p>
                   </div>
-                  <button
-                    onClick={() => setEditingUser({ email: '', name: '', role: 'user', password: '' })}
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => exportUsers('pdf')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to PDF"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">PDF</span>
+                      </button>
+                      <button
+                        onClick={() => exportUsers('excel')}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to Excel"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">Excel</span>
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setEditingUser({ email: '', name: '', role: 'user', password: '' })}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
                     <span>Add User</span>
                   </button>
                 </div>
@@ -973,9 +1168,33 @@ export default function AdminPage() {
             {/* Contributions Tab */}
             {activeTab === 'contributions' && (
               <div>
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold mb-4">Investment Contributions & Payouts</h2>
-                  <p className="text-gray-600 mb-4">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-xl font-semibold mb-2">Investment Contributions & Payouts</h2>
+                    <p className="text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => exportContributions('pdf')}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      title="Export to PDF"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="hidden sm:inline">PDF</span>
+                    </button>
+                    <button
+                      onClick={() => exportContributions('excel')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      title="Export to Excel"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="hidden sm:inline">Excel</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Total Admin Fee Summary */}
@@ -1257,12 +1476,36 @@ export default function AdminPage() {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Manage Portfolios</h2>
-                  <button
-                    onClick={() => setEditingPortfolio({ userId: '', totalValue: 0, totalGain: 0, totalGainPercent: 0, holdings: [] })}
-                    className="btn-primary"
-                  >
-                    + Add Portfolio
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => exportPortfolios('pdf')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to PDF"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">PDF</span>
+                      </button>
+                      <button
+                        onClick={() => exportPortfolios('excel')}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to Excel"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">Excel</span>
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setEditingPortfolio({ userId: '', totalValue: 0, totalGain: 0, totalGainPercent: 0, holdings: [] })}
+                      className="btn-primary"
+                    >
+                      + Add Portfolio
+                    </button>
+                  </div>
                 </div>
 
                 {editingPortfolio && (
@@ -1303,12 +1546,36 @@ export default function AdminPage() {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Manage Transactions</h2>
-                  <button
-                    onClick={() => setEditingTransaction({ userId: '', type: 'deposit', amount: 0, description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })}
-                    className="btn-primary"
-                  >
-                    + Add Transaction
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => exportTransactions('pdf')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to PDF"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">PDF</span>
+                      </button>
+                      <button
+                        onClick={() => exportTransactions('excel')}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        title="Export to Excel"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="hidden sm:inline">Excel</span>
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setEditingTransaction({ userId: '', type: 'deposit', amount: 0, description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })}
+                      className="btn-primary"
+                    >
+                      + Add Transaction
+                    </button>
+                  </div>
                 </div>
 
                 {editingTransaction && (
@@ -1363,7 +1630,7 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
