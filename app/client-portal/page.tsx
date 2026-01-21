@@ -574,7 +574,7 @@ export default function ClientPortal() {
                             .filter(t => t.commodityCompany === commodity)
                             .reduce((sum, t) => sum + t.amount, 0);
                           
-                          const allocation = totalInvested > 0 ? (commodityAmount / totalInvested * 100).toFixed(1) : 0;
+                          const allocation = totalInvested > 0 ? (commodityAmount / totalInvested * 100).toFixed(1) : '0';
                           
                           investments.push({
                             name: `${commodity} Commodities`,
@@ -586,7 +586,7 @@ export default function ClientPortal() {
                         });
                       } else {
                         // Show general commodities
-                        const allocation = totalInvested > 0 ? (commoditiesTotal / totalInvested * 100).toFixed(1) : 0;
+                        const allocation = totalInvested > 0 ? (commoditiesTotal / totalInvested * 100).toFixed(1) : '0';
                         investments.push({
                           name: 'Commodities Portfolio',
                           type: 'Commodities Trading',
@@ -599,7 +599,7 @@ export default function ClientPortal() {
                     
                     // Add equity if any
                     if (equityTotal > 0) {
-                      const allocation = totalInvested > 0 ? (equityTotal / totalInvested * 100).toFixed(1) : 0;
+                      const allocation = totalInvested > 0 ? (equityTotal / totalInvested * 100).toFixed(1) : '0';
                       investments.push({
                         name: 'Equity Investments',
                         type: 'Equity',
