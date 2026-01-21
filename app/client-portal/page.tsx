@@ -387,10 +387,11 @@ export default function ClientPortal() {
                         const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                         const netInvested = totalContributions - totalPayouts;
                         
-                        // Calculate 8% payout (10% gross - 2% fees) based on net invested
-                        const grossPayout = netInvested * 0.10;
-                        const netPayout = netInvested * 0.08;
-                        const fees = netInvested * 0.02;
+                        // Calculate 32% payout for 4-month season (8% per month × 4 months)
+                        // 40% gross (10% × 4) - 8% fees (2% × 4) = 32% net
+                        const grossPayout = netInvested * 0.40;
+                        const netPayout = netInvested * 0.32;
+                        const fees = netInvested * 0.08;
                         const v = formatPrimaryAndSecondary(netPayout);
                         return (
                           <>
@@ -402,9 +403,10 @@ export default function ClientPortal() {
                   </div>
                   <div className="mt-3 text-xs text-gray-600 space-y-1">
                     <div className="font-semibold text-purple-600">Payment: Jan 23-30, 2026</div>
+                    <div className="text-xs text-gray-500 mb-2">4-Month Season Returns (Sep-Dec 2025)</div>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
-                        <span>Gross Return (10%):</span>
+                        <span>Gross Return (40%):</span>
                         <span className="font-semibold">
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
@@ -416,12 +418,12 @@ export default function ClientPortal() {
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
                             const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                             const netInvested = totalContributions - totalPayouts;
-                            return formatPrimaryAndSecondary(netInvested * 0.10).primary;
+                            return formatPrimaryAndSecondary(netInvested * 0.40).primary;
                           })()}
                         </span>
                       </div>
                       <div className="flex justify-between text-red-600">
-                        <span>Fees (2%):</span>
+                        <span>Fees (8%):</span>
                         <span className="font-semibold">
                           -{(() => {
                             const contributions = dashboardData.transactions.filter(t => 
@@ -433,12 +435,12 @@ export default function ClientPortal() {
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
                             const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                             const netInvested = totalContributions - totalPayouts;
-                            return formatPrimaryAndSecondary(netInvested * 0.02).primary;
+                            return formatPrimaryAndSecondary(netInvested * 0.08).primary;
                           })()}
                         </span>
                       </div>
                       <div className="flex justify-between font-semibold text-green-600 border-t pt-1 mt-1">
-                        <span>Net Payout (8%):</span>
+                        <span>Net Payout (32%):</span>
                         <span>
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
@@ -450,7 +452,7 @@ export default function ClientPortal() {
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
                             const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                             const netInvested = totalContributions - totalPayouts;
-                            return formatPrimaryAndSecondary(netInvested * 0.08).primary;
+                            return formatPrimaryAndSecondary(netInvested * 0.32).primary;
                           })()}
                         </span>
                       </div>
