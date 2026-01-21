@@ -820,7 +820,115 @@ export default function ClientPortal() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Asset Allocation
             </h2>
-            <AssetAllocationChart holdings={portfolio.holdings} />
+            {(() => {
+              // Calculate asset allocation from transactions
+              const commoditiesTotal = dashboardData.transactions
+                .filter(t => t.investmentType === 'commodities')
+                .reduce((sum, t) => sum + t.amount, 0);
+              
+              const equityTotal = dashboardData.transactions
+                .filter(t => t.investmentType === 'equity')
+                .reduce((sum, t) => sum + t.amount, 0);
+              
+              const realEstateTotal = dashboardData.transactions
+                .filter(t => t.investmentType === 'real_estate')
+                .reduce((sum, t) => sum + t.amount, 0);
+              
+              const totalInvestments = commoditiesTotal + equityTotal + realEstateTotal;
+              
+              const allocations = [
+                {
+                  name: 'Commodities',
+                  value: commoditiesTotal,
+                  percentage: totalInvestments > 0 ? (commoditiesTotal / totalInvestments * 100).toFixed(1) : 0,
+                  color: 'from-amber-400 to-orange-500',
+                  icon: '🌾',
+                  description: 'Gold, Coffee, Agricultural products'
+                },
+                {
+                  name: 'Securities',
+                  value: equityTotal,
+                  percentage: totalInvestments > 0 ? (equityTotal / totalInvestments * 100).toFixed(1) : 0,
+                  color: 'from-blue-400 to-indigo-500',
+                  icon: '📈',
+                  description: 'Stocks, Bonds, Treasury Bills'
+                },
+                {
+                  name: 'Real Estate',
+                  value: realEstateTotal,
+                  percentage: totalInvestments > 0 ? (realEstateTotal / totalInvestments * 100).toFixed(1) : 0,
+                  color: 'from-green-400 to-emerald-500',
+                  icon: '🏢',
+                  description: 'Property investments'
+                }
+              ].filter(a => parseFloat(a.percentage) > 0);
+
+              if (allocations.length === 0) {
+                return (
+                  <div className="text-center py-12 text-gray-500">
+                    <p className="text-sm">Asset allocation will be displayed once your investments are processed.</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-4">
+                  {allocations.map((asset, idx) => (
+                    <div key={idx} className="relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${asset.color} flex items-center justify-center text-2xl`}>
+                            {asset.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{asset.name}</h3>
+                            <p className="text-xs text-gray-500">{asset.description}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900">{asset.percentage}%</div>
+                          <div className="text-xs text-gray-500">
+                            {formatPrimaryAndSecondary(asset.value).primary}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-gray-200 rounded-full h-3">
+                        <div
+                          className={`bg-gradient-to-r ${asset.color} h-3 rounded-full transition-all duration-500`}
+                          style={{ width: `${asset.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Total Summary */}
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-gray-700">Total Invested</span>
+                      <span className="text-lg font-bold text-gray-900">
+                        {formatPrimaryAndSecondary(totalInvestments).primary}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Diversified across {allocations.length} asset {allocations.length === 1 ? 'class' : 'classes'}
+                    </div>
+                  </div>
+                  
+                  {/* Available Investment Options Notice */}
+                  {allocations.length < 3 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                      <p className="text-xs text-blue-700">
+                        <strong>Diversification Opportunity:</strong> We offer investments in 
+                        {!allocations.find(a => a.name === 'Commodities') && ' Commodities'}
+                        {!allocations.find(a => a.name === 'Securities') && ' Securities'}
+                        {!allocations.find(a => a.name === 'Real Estate') && ' Real Estate'}
+                        . Contact your advisor to explore additional options.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">
