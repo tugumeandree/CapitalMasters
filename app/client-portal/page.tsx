@@ -1247,7 +1247,7 @@ export default function ClientPortal() {
                             <h3 className="font-semibold text-gray-900 text-sm">
                               {doc.name}
                             </h3>
-                            <span className="px-2 py-0.5 bg-white/50 rounded text-xs font-medium">
+                            <span className="px-2 py-0.5 bg-white bg-opacity-50 rounded text-xs font-medium">
                               {doc.category}
                             </span>
                           </div>
