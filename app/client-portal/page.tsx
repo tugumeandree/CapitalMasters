@@ -1267,7 +1267,7 @@ export default function ClientPortal() {
                         onClick={() => {
                           // Generate and download the document
                           if (doc.id === 'transaction-history') {
-                            generateTransactionReport(dashboardData.transactions);
+                            generateTransactionReport(dashboardData.transactions, user?.name || 'Client');
                           } else if (doc.id === 'payout-statement' || doc.id === 'cycle-cert') {
                             generatePortfolioStatement(
                               {
