@@ -840,7 +840,7 @@ export default function ClientPortal() {
                 {
                   name: 'Commodities',
                   value: commoditiesTotal,
-                  percentage: totalInvestments > 0 ? (commoditiesTotal / totalInvestments * 100).toFixed(1) : 0,
+                  percentage: totalInvestments > 0 ? (commoditiesTotal / totalInvestments * 100).toFixed(1) : '0',
                   color: 'from-amber-400 to-orange-500',
                   icon: '🌾',
                   description: 'Gold, Coffee, Agricultural products'
@@ -848,7 +848,7 @@ export default function ClientPortal() {
                 {
                   name: 'Securities',
                   value: equityTotal,
-                  percentage: totalInvestments > 0 ? (equityTotal / totalInvestments * 100).toFixed(1) : 0,
+                  percentage: totalInvestments > 0 ? (equityTotal / totalInvestments * 100).toFixed(1) : '0',
                   color: 'from-blue-400 to-indigo-500',
                   icon: '📈',
                   description: 'Stocks, Bonds, Treasury Bills'
@@ -856,7 +856,7 @@ export default function ClientPortal() {
                 {
                   name: 'Real Estate',
                   value: realEstateTotal,
-                  percentage: totalInvestments > 0 ? (realEstateTotal / totalInvestments * 100).toFixed(1) : 0,
+                  percentage: totalInvestments > 0 ? (realEstateTotal / totalInvestments * 100).toFixed(1) : '0',
                   color: 'from-green-400 to-emerald-500',
                   icon: '🏢',
                   description: 'Property investments'
