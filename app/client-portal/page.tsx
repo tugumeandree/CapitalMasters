@@ -387,12 +387,11 @@ export default function ClientPortal() {
                         const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                         const netInvested = totalContributions - totalPayouts;
                         
-                        // Calculate 32% payout for 4-month season (8% per month × 4 months)
-                        // 40% gross (10% × 4) - 8% fees (2% × 4) = 32% net
-                        const grossPayout = netInvested * 0.40;
-                        const netPayout = netInvested * 0.32;
-                        const fees = netInvested * 0.08;
-                        const v = formatPrimaryAndSecondary(netPayout);
+                        // Calculate payout for 4-month season
+                        // 8% per month × 4 months = 32% total
+                        const netPayoutPerMonth = netInvested * 0.08;
+                        const totalSeasonPayout = netPayoutPerMonth * 4;
+                        const v = formatPrimaryAndSecondary(totalSeasonPayout);
                         return (
                           <>
                             <span className="font-semibold">{v.primary}</span>
@@ -406,7 +405,7 @@ export default function ClientPortal() {
                     <div className="text-xs text-gray-500 mb-2">4-Month Season Returns (Sep-Dec 2025)</div>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
-                        <span>Gross Return (40%):</span>
+                        <span>Gross Return (10%/month):</span>
                         <span className="font-semibold">
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
@@ -418,14 +417,31 @@ export default function ClientPortal() {
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
                             const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                             const netInvested = totalContributions - totalPayouts;
-                            return formatPrimaryAndSecondary(netInvested * 0.40).primary;
+                            return formatPrimaryAndSecondary(netInvested * 0.10).primary;
                           })()}
                         </span>
                       </div>
                       <div className="flex justify-between text-red-600">
-                        <span>Fees (8%):</span>
+                        <span>Fees (2%/month):</span>
                         <span className="font-semibold">
                           -{(() => {
+                            const contributions = dashboardData.transactions.filter(t => 
+                              ['deposit', 'investment', 'loan_given'].includes(t.type)
+                            );
+                            const payouts = dashboardData.transactions.filter(t => 
+                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+                            );
+                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalPayouts;
+                            return formatPrimaryAndSecondary(netInvested * 0.02).primary;
+                          })()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-blue-600 border-t pt-1 mt-1">
+                        <span>Net Per Month (8%):</span>
+                        <span>
+                          {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
@@ -439,8 +455,8 @@ export default function ClientPortal() {
                           })()}
                         </span>
                       </div>
-                      <div className="flex justify-between font-semibold text-green-600 border-t pt-1 mt-1">
-                        <span>Net Payout (32%):</span>
+                      <div className="flex justify-between font-bold text-green-600 text-base border-t-2 pt-2 mt-2">
+                        <span>Total 4-Month Payout (32%):</span>
                         <span>
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
@@ -452,7 +468,7 @@ export default function ClientPortal() {
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
                             const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
                             const netInvested = totalContributions - totalPayouts;
-                            return formatPrimaryAndSecondary(netInvested * 0.32).primary;
+                            return formatPrimaryAndSecondary(netInvested * 0.08 * 4).primary;
                           })()}
                         </span>
                       </div>
