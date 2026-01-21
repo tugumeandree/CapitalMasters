@@ -266,26 +266,26 @@ export default function ClientPortal() {
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container-custom py-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
                 Welcome back, {user?.name}
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-sm lg:text-base">
                 Last updated: {new Date().toLocaleDateString()}
               </p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => fetchDashboardData()}
                 disabled={loadingData}
-                className="btn-outline text-sm flex items-center gap-2"
+                className="btn-outline text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap"
                 title="Refresh data"
               >
                 <svg className={`h-4 w-4 ${loadingData ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                {loadingData ? 'Refreshing...' : 'Refresh'}
+                <span className="hidden sm:inline">{loadingData ? 'Refreshing...' : 'Refresh'}</span>
               </button>
               {portfolio && dashboardData && (
                 <button
@@ -300,14 +300,15 @@ export default function ClientPortal() {
                     },
                     dashboardData.transactions
                   )}
-                  className="btn-outline text-sm"
+                  className="btn-outline text-xs sm:text-sm whitespace-nowrap"
                 >
-                  Download Statement
+                  <span className="hidden sm:inline">Download Statement</span>
+                  <span className="sm:hidden">Statement</span>
                 </button>
               )}
               <button
                 onClick={() => logout()}
-                className="btn-outline"
+                className="btn-outline text-xs sm:text-sm whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -343,13 +344,13 @@ export default function ClientPortal() {
             )}
 
             {/* Portfolio Summary */}
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Total Value</span>
-                  <BanknotesIcon className="h-5 w-5 text-primary-600" />
+                  <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Value</span>
+                  <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {(() => {
                       const v = formatPrimaryAndSecondary(portfolio.totalValue);
                       return (
@@ -362,12 +363,12 @@ export default function ClientPortal() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Total Contributions</span>
-                  <ArrowTrendingUpIcon className="h-5 w-5 text-blue-600" />
+                  <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Contributions</span>
+                  <ArrowTrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                 </div>
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600">
                     {(() => {
                       // Calculate total contributions (deposits, investments, loans given)
                       const contributions = dashboardData.transactions.filter(t => 
@@ -385,12 +386,12 @@ export default function ClientPortal() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Total Payouts</span>
-                  <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />
+                  <span className="text-gray-600 text-xs sm:text-sm font-semibold">Total Payouts</span>
+                  <ArrowTrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                 </div>
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600">
                     {(() => {
                       // Calculate total payouts (withdrawals, dividends, interest, loan repayments)
                       const payouts = dashboardData.transactions.filter(t => 
@@ -408,12 +409,12 @@ export default function ClientPortal() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm font-semibold">Net Invested</span>
-                  <ChartBarIcon className="h-5 w-5 text-purple-600" />
+                  <span className="text-gray-600 text-xs sm:text-sm font-semibold">Net Invested</span>
+                  <ChartBarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                 </div>
-                <div className="text-3xl font-bold text-purple-600">
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600">
                     {(() => {
                       // Calculate net invested (contributions - payouts)
                       const contributions = dashboardData.transactions.filter(t => 
@@ -437,23 +438,23 @@ export default function ClientPortal() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
               {/* Holdings */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                   Portfolio Holdings
                 </h2>
                 <div className="space-y-4">
                   {portfolio.holdings.map((holding, idx) => (
                     <div key={idx} className="border-b pb-4 last:border-b-0">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{holding.name}</h3>
-                          <p className="text-sm text-gray-600">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{holding.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-600">
                             {holding.type} • {holding.allocation}% of portfolio
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <div className="font-bold text-gray-900">
                               {(() => {
                                 const v = formatPrimaryAndSecondary(holding.value);
@@ -482,8 +483,8 @@ export default function ClientPortal() {
           </div>
 
           {/* Recent Transactions */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
               Recent Transactions
             </h2>
             <div className="space-y-4">
@@ -493,8 +494,8 @@ export default function ClientPortal() {
                   const isInvestment = transaction.type === 'investment' || transaction.investmentType;
                   
                   return (
-                    <div key={transaction.id} className={`border rounded-lg p-4 ${isCommodity ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={transaction.id} className={`border rounded-lg p-3 sm:p-4 ${isCommodity ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3">
                         <div className="flex items-start space-x-3 flex-1">
                           <div className={`${isCommodity ? 'bg-amber-200' : 'bg-primary-100'} w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0`}>
                             <ClockIcon className={`h-5 w-5 ${isCommodity ? 'text-amber-700' : 'text-primary-600'}`} />
