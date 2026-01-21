@@ -1407,6 +1407,8 @@ export default function ClientPortal() {
             Contact Your Advisor
           </button>
         </div>
+          </>
+        ) : null}
       </div>
 
       {/* Profile Edit Modal */}
