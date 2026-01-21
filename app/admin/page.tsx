@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import UsersTab from '@/components/admin/UsersTab';
 
 type Tab = 'users' | 'portfolios' | 'transactions' | 'contributions';
 
@@ -28,7 +29,7 @@ export default function AdminPage() {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [userViewMode, setUserViewMode] = useState<'cards' | 'table'>('cards');
-  const [userSortBy, setUserSortBy] = useState<'name' | 'email' | 'role' | 'portfolio' | 'date'>('name');
+  const [userSortBy, setUserSortBy] = useState<'name' | 'email' | 'role' | 'portfolio' | 'date' | 'transactions'>('name');
   const [userSortOrder, setUserSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
@@ -251,6 +252,52 @@ export default function AdminPage() {
       router.push('/client-portal');
     }
   }, [loading, user, router]);
+
+  // Compute filtered, sorted, and paginated users
+  const { filteredUsers, sortedUsers, paginatedUsers, totalPages } = useMemo(() => {
+    // Filter users
+    const filtered = users.filter(u => {
+      const matchesSearch = userSearchQuery === '' || 
+        u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        u.contact?.includes(userSearchQuery);
+      const matchesRole = userRoleFilter === 'all' || u.role === userRoleFilter;
+      return matchesSearch && matchesRole;
+    });
+
+    // Sort users
+    const sorted = [...filtered].sort((a, b) => {
+      let compareValue = 0;
+
+      switch (userSortBy) {
+        case 'name':
+          compareValue = (a.name || '').localeCompare(b.name || '');
+          break;
+        case 'email':
+          compareValue = (a.email || '').localeCompare(b.email || '');
+          break;
+        case 'role':
+          compareValue = (a.role || 'user').localeCompare(b.role || 'user');
+          break;
+        case 'portfolio':
+          const aPort = portfolios.find(p => p.userId === a._id)?.totalValue || 0;
+          const bPort = portfolios.find(p => p.userId === b._id)?.totalValue || 0;
+          compareValue = bPort - aPort;
+          break;
+      }
+
+      return userSortOrder === 'asc' ? compareValue : -compareValue;
+    });
+
+    // Paginate
+    const pages = Math.ceil(sorted.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginated = sorted.slice(startIndex, endIndex);
+
+    return { filteredUsers: filtered, sortedUsers: sorted, paginatedUsers: paginated, totalPages: pages };
+  }, [users, userSearchQuery, userRoleFilter, userSortBy, userSortOrder, portfolios, currentPage, itemsPerPage]);
+
 
   async function fetchAllData() {
     setLoadingData(true);
@@ -617,18 +664,49 @@ export default function AdminPage() {
           <div>
             {/* Users Tab */}
             {activeTab === 'users' && (
+              <UsersTab
+                users={users}
+                portfolios={portfolios}
+                transactions={transactions}
+                userSearchQuery={userSearchQuery}
+                setUserSearchQuery={setUserSearchQuery}
+                userRoleFilter={userRoleFilter}
+                setUserRoleFilter={setUserRoleFilter}
+                userSortBy={userSortBy}
+                setUserSortBy={setUserSortBy}
+                userSortOrder={userSortOrder}
+                setUserSortOrder={setUserSortOrder}
+                userViewMode={userViewMode}
+                setUserViewMode={setUserViewMode}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                setItemsPerPage={setItemsPerPage}
+                editingUser={editingUser}
+                setEditingUser={setEditingUser}
+                deleteUser={deleteUser}
+                saveUser={saveUser}
+                exportUsers={exportUsers}
+                formatNumber={formatNumber}
+                filteredUsers={filteredUsers}
+                sortedUsers={sortedUsers}
+                paginatedUsers={paginatedUsers}
+                totalPages={totalPages}
+                UserForm={UserForm}
+              />
+            )}
+            {activeTab === 'contributions' && (
               <div>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Manage Users</h2>
-                    <p className="text-gray-600 mt-1">View and manage all registered users</p>
+                    <h2 className="text-xl font-semibold mb-2">Investment Contributions & Payouts</h2>
+                    <p className="text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => exportUsers('pdf')}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-                        title="Export to PDF"
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => exportContributions('pdf')}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      title="Export to PDF"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
