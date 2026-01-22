@@ -1057,7 +1057,7 @@ export default function AdminPage() {
                       <div key={p._id} className="bg-white rounded-lg shadow p-6">
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="font-semibold text-lg">{owner?.name || owner?.email || 'Unknown User'}</h3>
+                            <h3 className="font-semibold text-lg text-gray-900">{owner?.name || owner?.email || 'Unknown User'}</h3>
                             <p className="text-sm text-gray-600">Total Value: UGX {p.totalValue?.toLocaleString() || 0}</p>
                             <p className="text-sm text-gray-600">Holdings: {p.holdings?.length || 0}</p>
                           </div>
