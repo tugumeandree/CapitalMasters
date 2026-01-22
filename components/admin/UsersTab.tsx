@@ -65,6 +65,24 @@ export default function UsersTab({
   totalPages,
   UserForm,
 }: UsersTabProps) {
+  // Calculate total expected payout for all investors
+  const totalExpectedPayout = users
+    .filter(u => u.role !== 'admin')
+    .reduce((total, user) => {
+      const userTransactions = transactions.filter(t => t.userId === user._id);
+      const contributions = userTransactions.filter(t => 
+        ['deposit', 'investment', 'loan_given'].includes(t.type)
+      );
+      const payouts = userTransactions.filter(t => 
+        ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
+      );
+      const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
+      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
+      const netInvested = totalContribs - totalPayouts;
+      const payout = netInvested * 0.32;
+      return total + payout;
+    }, 0);
+
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -104,6 +122,20 @@ export default function UsersTab({
             </svg>
             <span>Add User</span>
           </button>
+        </div>
+      </div>
+
+      {/* Total Expected Payout Banner */}
+      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-white text-lg font-semibold mb-1">Total Expected Payout to All Investors</h3>
+            <p className="text-green-100 text-sm">32% returns on all active portfolios</p>
+          </div>
+          <div className="text-right">
+            <p className="text-white text-4xl font-bold">UGX {formatNumber(totalExpectedPayout)}</p>
+            <p className="text-green-100 text-sm mt-1">{users.filter(u => u.role !== 'admin').length} investors</p>
+          </div>
         </div>
       </div>
 
@@ -245,9 +277,15 @@ export default function UsersTab({
       {userViewMode === 'cards' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedUsers.map((u) => (
-            <div key={u._id} className="bg-white p-4 rounded-lg shadow">
-              <p>{u.name}</p>
-            </div>
+            <UserCard
+              key={u._id}
+              user={u}
+              portfolios={portfolios}
+              transactions={transactions}
+              onEdit={setEditingUser}
+              onDelete={deleteUser}
+              formatNumber={formatNumber}
+            />
           ))}
         </div>
       ) : (
@@ -260,15 +298,21 @@ export default function UsersTab({
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Role</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Portfolio</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Expected Payout</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Payout (32%)</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedUsers.map((u) => (
-                  <tr key={u._id}>
-                    <td className="px-6 py-4">{u.name}</td>
-                  </tr>
+                  <UserTableRow
+                    key={u._id}
+                    user={u}
+                    portfolios={portfolios}
+                    transactions={transactions}
+                    onEdit={setEditingUser}
+                    onDelete={deleteUser}
+                    formatNumber={formatNumber}
+                  />
                 ))}
               </tbody>
             </table>

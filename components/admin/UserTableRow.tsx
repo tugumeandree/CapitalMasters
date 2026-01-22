@@ -34,7 +34,7 @@ export default function UserTableRow({ user, portfolios, transactions, onEdit, o
   const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
   const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
   const netInvested = totalContribs - totalPayouts;
-  const expectedPayout = netInvested * 0.32;
+  const payout = netInvested * 0.32;
   const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
 
   return (
@@ -60,13 +60,13 @@ export default function UserTableRow({ user, portfolios, transactions, onEdit, o
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-semibold text-gray-900">
-          {user.role !== 'admin' ? `UGX ${formatNumber(userPortfolio?.totalValue || 0)}` : 'N/A'}
+          {user.role !== 'admin' ? `UGX ${formatNumber(netInvested)}` : 'N/A'}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         {user.role !== 'admin' ? (
           <div>
-            <div className="text-sm font-semibold text-green-600">UGX {formatNumber(expectedPayout)}</div>
+            <div className="text-sm font-semibold text-green-600">UGX {formatNumber(payout)}</div>
             <div className="text-xs text-gray-500">{payoutMonth}</div>
           </div>
         ) : (

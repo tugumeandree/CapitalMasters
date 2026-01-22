@@ -73,11 +73,11 @@ export default function UserCard({ user, portfolios, transactions, onEdit, onDel
         {user.role !== 'admin' && (
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-gray-600">Portfolio Value</span>
-              <span className="text-sm font-bold text-gray-900">UGX {formatNumber(userPortfolio?.totalValue || 0)}</span>
+              <span className="text-xs font-medium text-gray-600">Portfolio Principle</span>
+              <span className="text-sm font-bold text-gray-900">UGX {formatNumber(netInvested)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-gray-600">Contributions</span>
+              <span className="text-xs font-medium text-gray-600">Total Contributions</span>
               <span className="text-sm font-bold text-blue-600">UGX {formatNumber(totalContributions)}</span>
             </div>
             <div className="flex justify-between items-center border-t border-gray-200 pt-2 mt-2">
