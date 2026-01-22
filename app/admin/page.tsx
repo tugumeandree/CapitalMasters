@@ -702,7 +702,7 @@ export default function AdminPage() {
               <div>
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h2 className="text-xl font-semibold mb-2">Investment Contributions & Payouts</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Investment Contributions & Payouts</h2>
                     <p className="text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1007,7 +1007,7 @@ export default function AdminPage() {
             {activeTab === 'portfolios' && (
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Manage Portfolios</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Manage Portfolios</h2>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <button
@@ -1077,7 +1077,7 @@ export default function AdminPage() {
             {activeTab === 'transactions' && (
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Manage Transactions</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Manage Transactions</h2>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <button
