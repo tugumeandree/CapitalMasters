@@ -600,60 +600,62 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
-            <div className="text-sm text-gray-600">
+      <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Admin Portal</h1>
+            <div className="text-xs sm:text-sm text-gray-600 truncate max-w-full">
               Logged in as: <span className="font-semibold">{user.email}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-200 p-1 rounded-lg">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
-              activeTab === 'users'
-                ? 'bg-purple-600 text-white shadow'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Users ({users.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('contributions')}
-            className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
-              activeTab === 'contributions'
-                ? 'bg-purple-600 text-white shadow'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Contributions
-          </button>
-          <button
-            onClick={() => setActiveTab('portfolios')}
-            className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
-              activeTab === 'portfolios'
-                ? 'bg-purple-600 text-white shadow'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Portfolios ({portfolios.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('transactions')}
-            className={`flex-1 py-2 px-4 rounded-md font-medium transition ${
-              activeTab === 'transactions'
-                ? 'bg-purple-600 text-white shadow'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Transactions ({transactions.length})
-          </button>
+        <div className="overflow-x-auto mb-4 sm:mb-6 -mx-3 sm:-mx-4 px-3 sm:px-4 scrollbar-hide">
+          <div className="flex space-x-2 bg-gray-200 p-1 rounded-lg min-w-max sm:min-w-0">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex-1 py-2.5 px-4 sm:px-6 rounded-md text-xs sm:text-sm font-medium transition-all whitespace-nowrap min-w-[100px] ${
+                activeTab === 'users'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 active:bg-gray-300'
+              }`}
+            >
+              Users ({users.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('contributions')}
+              className={`flex-1 py-2.5 px-4 sm:px-6 rounded-md text-xs sm:text-sm font-medium transition-all whitespace-nowrap min-w-[100px] ${
+                activeTab === 'contributions'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 active:bg-gray-300'
+              }`}
+            >
+              Contributions
+            </button>
+            <button
+              onClick={() => setActiveTab('portfolios')}
+              className={`flex-1 py-2.5 px-4 sm:px-6 rounded-md text-xs sm:text-sm font-medium transition-all whitespace-nowrap min-w-[100px] ${
+                activeTab === 'portfolios'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 active:bg-gray-300'
+              }`}
+            >
+              Portfolios ({portfolios.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className={`flex-1 py-2.5 px-4 sm:px-6 rounded-md text-xs sm:text-sm font-medium transition-all whitespace-nowrap min-w-[100px] ${
+                activeTab === 'transactions'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 active:bg-gray-300'
+              }`}
+            >
+              Transactions ({transactions.length})
+            </button>
+          </div>
         </div>
 
         {loadingData ? (
@@ -700,15 +702,15 @@ export default function AdminPage() {
             {/* Contributions Tab */}
             {activeTab === 'contributions' && (
               <div>
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Investment Contributions & Payouts</h2>
-                    <p className="text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Investment Contributions & Payouts</h2>
+                    <p className="text-sm text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => exportContributions('pdf')}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                       title="Export to PDF"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -718,7 +720,7 @@ export default function AdminPage() {
                     </button>
                     <button
                       onClick={() => exportContributions('excel')}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                       title="Export to Excel"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -745,22 +747,22 @@ export default function AdminPage() {
 
                   if (totalCommodityPrincipal > 0) {
                     return (
-                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-6 mb-6">
-                        <h3 className="text-xl font-bold mb-4">Your Admin Fee Summary (Commodities)</h3>
-                        <div className="grid grid-cols-3 gap-6">
-                          <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                            <p className="text-purple-100 text-sm font-medium mb-1">Total Commodities Principal</p>
-                            <p className="text-3xl font-bold">UGX {formatNumber(totalCommodityPrincipal)}</p>
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+                        <h3 className="text-lg sm:text-xl font-bold mb-4">Your Admin Fee Summary (Commodities)</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                          <div className="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4">
+                            <p className="text-purple-100 text-xs sm:text-sm font-medium mb-1">Total Commodities Principal</p>
+                            <p className="text-2xl sm:text-3xl font-bold">UGX {formatNumber(totalCommodityPrincipal)}</p>
                             <p className="text-purple-200 text-xs mt-1">Across all investors</p>
                           </div>
-                          <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                            <p className="text-purple-100 text-sm font-medium mb-1">Your 4-Month Admin Fee (8%)</p>
-                            <p className="text-3xl font-bold">UGX {formatNumber(totalAdminFee4Months)}</p>
+                          <div className="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4">
+                            <p className="text-purple-100 text-xs sm:text-sm font-medium mb-1">Your 4-Month Admin Fee (8%)</p>
+                            <p className="text-2xl sm:text-3xl font-bold">UGX {formatNumber(totalAdminFee4Months)}</p>
                             <p className="text-purple-200 text-xs mt-1">2% per month × 4 months</p>
                           </div>
-                          <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                            <p className="text-purple-100 text-sm font-medium mb-1">Monthly Average Fee</p>
-                            <p className="text-3xl font-bold">UGX {formatNumber(totalAdminFee4Months / 4)}</p>
+                          <div className="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4">
+                            <p className="text-purple-100 text-xs sm:text-sm font-medium mb-1">Monthly Average Fee</p>
+                            <p className="text-2xl sm:text-3xl font-bold">UGX {formatNumber(totalAdminFee4Months / 4)}</p>
                             <p className="text-purple-200 text-xs mt-1">Collected every 4 months</p>
                           </div>
                         </div>
@@ -786,32 +788,32 @@ export default function AdminPage() {
                   const portfolio = portfolios.find((p) => p.userId === investor._id);
 
                   return (
-                    <div key={investor._id} className="bg-white rounded-lg shadow p-6 mb-4">
-                      <div className="flex justify-between items-start mb-4">
+                    <div key={investor._id} className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0 mb-4">
                         <div>
-                          <h3 className="text-lg font-semibold">{investor.name || investor.email}</h3>
+                          <h3 className="text-base sm:text-lg font-semibold">{investor.name || investor.email}</h3>
                           <p className="text-sm text-gray-500">{investor.email}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">Current Portfolio Value</p>
-                          <p className="text-xl font-bold text-gray-900">UGX {formatNumber(portfolio?.totalValue || 0)}</p>
+                        <div className="sm:text-right">
+                          <p className="text-xs sm:text-sm text-gray-600">Current Portfolio Value</p>
+                          <p className="text-lg sm:text-xl font-bold text-gray-900">UGX {formatNumber(portfolio?.totalValue || 0)}</p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <p className="text-sm text-blue-600 font-medium">Total Contributions</p>
-                          <p className="text-2xl font-bold text-blue-900">UGX {formatNumber(totalContributions)}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                        <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                          <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Contributions</p>
+                          <p className="text-xl sm:text-2xl font-bold text-blue-900">UGX {formatNumber(totalContributions)}</p>
                           <p className="text-xs text-blue-600 mt-1">{contributions.length} transactions</p>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg">
-                          <p className="text-sm text-green-600 font-medium">Total Payouts</p>
-                          <p className="text-2xl font-bold text-green-900">UGX {formatNumber(totalPayouts)}</p>
+                        <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+                          <p className="text-xs sm:text-sm text-green-600 font-medium">Total Payouts</p>
+                          <p className="text-xl sm:text-2xl font-bold text-green-900">UGX {formatNumber(totalPayouts)}</p>
                           <p className="text-xs text-green-600 mt-1">{payouts.length} transactions</p>
                         </div>
-                        <div className="bg-purple-50 p-4 rounded-lg">
-                          <p className="text-sm text-purple-600 font-medium">Net Invested</p>
-                          <p className="text-2xl font-bold text-purple-900">UGX {formatNumber(netInvested)}</p>
+                        <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
+                          <p className="text-xs sm:text-sm text-purple-600 font-medium">Net Invested</p>
+                          <p className="text-xl sm:text-2xl font-bold text-purple-900">UGX {formatNumber(netInvested)}</p>
                           <p className="text-xs text-purple-600 mt-1">Return: {portfolio?.totalGain ? `UGX ${formatNumber(portfolio.totalGain)}` : 'N/A'}</p>
                         </div>
                       </div>
@@ -1006,13 +1008,13 @@ export default function AdminPage() {
             {/* Portfolios Tab */}
             {activeTab === 'portfolios' && (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Manage Portfolios</h2>
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Manage Portfolios</h2>
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => exportPortfolios('pdf')}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                         title="Export to PDF"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1022,7 +1024,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => exportPortfolios('excel')}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                         title="Export to Excel"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1033,9 +1035,9 @@ export default function AdminPage() {
                     </div>
                     <button
                       onClick={() => setEditingPortfolio({ userId: '', totalValue: 0, totalGain: 0, totalGainPercent: 0, holdings: [] })}
-                      className="btn-primary"
+                      className="btn-primary text-sm"
                     >
-                      + Add Portfolio
+                      + Add
                     </button>
                   </div>
                 </div>
@@ -1076,13 +1078,13 @@ export default function AdminPage() {
             {/* Transactions Tab */}
             {activeTab === 'transactions' && (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Manage Transactions</h2>
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Manage Transactions</h2>
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => exportTransactions('pdf')}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                         title="Export to PDF"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1092,7 +1094,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => exportTransactions('excel')}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                         title="Export to Excel"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1103,9 +1105,9 @@ export default function AdminPage() {
                     </div>
                     <button
                       onClick={() => setEditingTransaction({ userId: '', type: 'deposit', amount: 0, description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })}
-                      className="btn-primary"
+                      className="btn-primary text-sm"
                     >
-                      + Add Transaction
+                      + Add
                     </button>
                   </div>
                 </div>
@@ -1120,16 +1122,16 @@ export default function AdminPage() {
                   />
                 )}
 
-                <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="bg-white rounded-lg shadow overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -1137,11 +1139,11 @@ export default function AdminPage() {
                         const owner = users.find((u) => u._id === t.userId);
                         return (
                           <tr key={t._id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{t.date || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{owner?.email || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{t.type}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">UGX {formatNumber(t.amount)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{t.date || 'N/A'}</td>
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{owner?.email || 'N/A'}</td>
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{t.type}</td>
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">UGX {formatNumber(t.amount)}</td>
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                               <span className={`px-2 py-1 text-xs font-semibold rounded ${
                                 t.status === 'completed' ? 'bg-green-100 text-green-800' :
                                 t.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -1150,7 +1152,7 @@ export default function AdminPage() {
                                 {t.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm space-x-2">
                               <button onClick={() => setEditingTransaction(t)} className="text-blue-600 hover:text-blue-900">Edit</button>
                               <button onClick={() => deleteTransaction(t._id)} className="text-red-600 hover:text-red-900">Delete</button>
                             </td>

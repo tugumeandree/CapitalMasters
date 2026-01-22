@@ -159,3 +159,35 @@ body {
 .text-balance {
   text-wrap: balance;
 }
+
+/* Mobile Optimization */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+}
+
+/* Smooth scrolling for mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better mobile touch targets */
+@media (max-width: 640px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

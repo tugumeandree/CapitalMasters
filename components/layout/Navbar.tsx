@@ -66,18 +66,27 @@ export default function Navbar() {
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link
-                  href="/client-portal"
-                  className="text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium"
-                >
-                  Client Portal
-                </Link>
-                {(user as any)?.role === 'admin' && (
+                {(user as any)?.role === 'admin' ? (
+                  <>
+                    <Link
+                      href="/client-portal"
+                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                    >
+                      Client Portal
+                    </Link>
+                    <Link
+                      href="/admin"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                    >
+                      Admin Portal
+                    </Link>
+                  </>
+                ) : (
                   <Link
-                    href="/admin"
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                    href="/client-portal"
+                    className="text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium"
                   >
-                    Admin Portal
+                    Client Portal
                   </Link>
                 )}
                 <span className="text-gray-500 text-sm">{user?.name || 'User'}</span>
@@ -138,20 +147,30 @@ export default function Navbar() {
             
             {isAuthenticated ? (
               <>
-                <Link
-                  href="/client-portal"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Client Portal
-                </Link>
-                {(user as any)?.role === 'admin' && (
+                {(user as any)?.role === 'admin' ? (
+                  <>
+                    <Link
+                      href="/client-portal"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                    >
+                      Client Portal
+                    </Link>
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-3 py-2 rounded-md text-base font-medium bg-purple-600 text-white hover:bg-purple-700"
+                    >
+                      Admin Portal
+                    </Link>
+                  </>
+                ) : (
                   <Link
-                    href="/admin"
+                    href="/client-portal"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block px-3 py-2 rounded-md text-base font-medium bg-purple-600 text-white hover:bg-purple-700"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                   >
-                    Admin Portal
+                    Client Portal
                   </Link>
                 )}
                 <div className="px-3 py-2 text-sm text-gray-500">
