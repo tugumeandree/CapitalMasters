@@ -480,7 +480,7 @@ export default function ClientPortal() {
                         </span>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-2 italic">
+                    <div className="text-sm text-gray-900 font-bold mt-3 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
                       *Fees cover transaction costs, taxes, service charges, and operational expenses
                     </div>
                   </div>
