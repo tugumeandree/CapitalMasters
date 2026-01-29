@@ -842,30 +842,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap mb-4" style={{ display: 'none' }}>
-                    <button
-                      onClick={() => exportContributions('pdf')}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-                      title="Export to PDF"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="hidden sm:inline">PDF</span>
-                    </button>
-                    <button
-                      onClick={() => exportContributions('excel')}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-                      title="Export to Excel"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="hidden sm:inline">Excel</span>
-                    </button>
-                  </div>
-                </div>
-
                 {/* Total Admin Fee Summary */}
                 {(() => {
                   let totalCommodityPrincipal = 0;
