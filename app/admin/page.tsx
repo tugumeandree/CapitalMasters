@@ -33,6 +33,11 @@ export default function AdminPage() {
   const [userSortOrder, setUserSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
+  
+  // Contributions tab state
+  const [contributionsSearchQuery, setContributionsSearchQuery] = useState('');
+  const [contributionsSortBy, setContributionsSortBy] = useState<'name' | 'contributions' | 'payouts' | 'netInvested'>('name');
+  const [contributionsSortOrder, setContributionsSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const formatNumber = (value: number | string | null | undefined) => {
     const num = typeof value === 'string' ? Number(value) : value;
@@ -252,6 +257,49 @@ export default function AdminPage() {
       router.push('/client-portal');
     }
   }, [loading, user, router]);
+
+  // Compute filtered and sorted investors for contributions tab
+  const { filteredInvestors, sortedInvestors } = useMemo(() => {
+    const investorsWithData = users.map(investor => {
+      const userTransactions = transactions.filter((t) => t.userId === investor._id);
+      const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+      const payouts = userTransactions.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
+      const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalPayouts = payouts.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const netInvested = totalContributions - totalPayouts;
+      return { ...investor, totalContributions, totalPayouts, netInvested };
+    });
+
+    // Filter investors
+    const filtered = investorsWithData.filter(inv => {
+      const matchesSearch = contributionsSearchQuery === '' ||
+        inv.name?.toLowerCase().includes(contributionsSearchQuery.toLowerCase()) ||
+        inv.email?.toLowerCase().includes(contributionsSearchQuery.toLowerCase());
+      return matchesSearch;
+    });
+
+    // Sort investors
+    const sorted = [...filtered].sort((a, b) => {
+      let compareValue = 0;
+      switch (contributionsSortBy) {
+        case 'name':
+          compareValue = (a.name || '').localeCompare(b.name || '');
+          break;
+        case 'contributions':
+          compareValue = a.totalContributions - b.totalContributions;
+          break;
+        case 'payouts':
+          compareValue = a.totalPayouts - b.totalPayouts;
+          break;
+        case 'netInvested':
+          compareValue = a.netInvested - b.netInvested;
+          break;
+      }
+      return contributionsSortOrder === 'asc' ? compareValue : -compareValue;
+    });
+
+    return { filteredInvestors: filtered, sortedInvestors: sorted };
+  }, [users, transactions, contributionsSearchQuery, contributionsSortBy, contributionsSortOrder]);
 
   // Compute filtered, sorted, and paginated users
   const { filteredUsers, sortedUsers, paginatedUsers, totalPages } = useMemo(() => {
@@ -731,6 +779,87 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {/* Search and Sort Controls */}
+                <div className="bg-white rounded-lg shadow p-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Search */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Search Investors</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={contributionsSearchQuery}
+                          onChange={(e) => setContributionsSearchQuery(e.target.value)}
+                          placeholder="Search by name or email..."
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Sort By */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                      <div className="flex gap-2">
+                        <select
+                          value={contributionsSortBy}
+                          onChange={(e) => setContributionsSortBy(e.target.value as any)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        >
+                          <option value="name">Name</option>
+                          <option value="contributions">Contributions</option>
+                          <option value="payouts">Payouts</option>
+                          <option value="netInvested">Net Invested</option>
+                        </select>
+                        <button
+                          onClick={() => setContributionsSortOrder(contributionsSortOrder === 'asc' ? 'desc' : 'asc')}
+                          className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          title={contributionsSortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
+                        >
+                          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {contributionsSortOrder === 'asc' ? (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                            ) : (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                            )}
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Results count */}
+                  <div className="mt-4 text-sm text-gray-600">
+                    Showing {sortedInvestors.length} of {users.length} investors
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap mb-4" style={{ display: 'none' }}>
+                    <button
+                      onClick={() => exportContributions('pdf')}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      title="Export to PDF"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="hidden sm:inline">PDF</span>
+                    </button>
+                    <button
+                      onClick={() => exportContributions('excel')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                      title="Export to Excel"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="hidden sm:inline">Excel</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Total Admin Fee Summary */}
                 {(() => {
                   let totalCommodityPrincipal = 0;
@@ -772,7 +901,7 @@ export default function AdminPage() {
                   return null;
                 })()}
 
-                {users.map((investor) => {
+                {sortedInvestors.map((investor) => {
                   const userTransactions = transactions.filter((t) => t.userId === investor._id);
                   const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
                   const payouts = userTransactions.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
