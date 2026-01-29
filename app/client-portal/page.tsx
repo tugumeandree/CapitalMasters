@@ -387,12 +387,10 @@ export default function ClientPortal() {
                         const contributions = dashboardData.transactions.filter(t => 
                           ['deposit', 'investment', 'loan_given'].includes(t.type)
                         );
-                        const payouts = dashboardData.transactions.filter(t => 
-                          ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                        );
+                        const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                         const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                        const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                        const netInvested = totalContributions - totalPayouts;
+                        const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                        const netInvested = totalContributions - totalWithdrawals;
                         
                         // Calculate payout for 4-month season
                         // 8% per month × 4 months = 32% total
@@ -418,12 +416,10 @@ export default function ClientPortal() {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
-                            const payouts = dashboardData.transactions.filter(t => 
-                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                            );
+                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalPayouts;
+                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalWithdrawals;
                             return formatPrimaryAndSecondary(netInvested * 0.10).primary;
                           })()}
                         </span>
@@ -435,12 +431,10 @@ export default function ClientPortal() {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
-                            const payouts = dashboardData.transactions.filter(t => 
-                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                            );
+                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalPayouts;
+                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalWithdrawals;
                             return formatPrimaryAndSecondary(netInvested * 0.02).primary;
                           })()}
                         </span>
@@ -452,12 +446,10 @@ export default function ClientPortal() {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
-                            const payouts = dashboardData.transactions.filter(t => 
-                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                            );
+                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalPayouts;
+                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalWithdrawals;
                             return formatPrimaryAndSecondary(netInvested * 0.08).primary;
                           })()}
                         </span>
@@ -469,12 +461,10 @@ export default function ClientPortal() {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
-                            const payouts = dashboardData.transactions.filter(t => 
-                              ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                            );
+                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                             const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalPayouts;
+                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                            const netInvested = totalContributions - totalWithdrawals;
                             return formatPrimaryAndSecondary(netInvested * 0.08 * 4).primary;
                           })()}
                         </span>
@@ -544,12 +534,10 @@ export default function ClientPortal() {
                       const contributions = dashboardData.transactions.filter(t => 
                         ['deposit', 'investment', 'loan_given'].includes(t.type)
                       );
-                      const payouts = dashboardData.transactions.filter(t => 
-                        ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-                      );
+                      const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
                       const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-                      const netInvested = totalContributions - totalPayouts;
+                      const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                      const netInvested = totalContributions - totalWithdrawals;
                       const v = formatPrimaryAndSecondary(netInvested);
                       return (
                         <>
@@ -1019,12 +1007,10 @@ export default function ClientPortal() {
               const contributions = dashboardData.transactions.filter(t => 
                 ['deposit', 'investment', 'loan_given'].includes(t.type)
               );
-              const payouts = dashboardData.transactions.filter(t => 
-                ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-              );
+              const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
               const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-              const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-              const netInvested = totalContributions - totalPayouts;
+              const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+              const netInvested = totalContributions - totalWithdrawals;
 
               // Check if investor started in 2025 (eligible for Jan 2026 payout)
               const oldestTransaction = dashboardData.transactions

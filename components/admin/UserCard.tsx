@@ -30,9 +30,11 @@ export default function UserCard({ user, portfolios, transactions, onEdit, onDel
   const payouts = userTransactions.filter(t => 
     ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
   );
+  const withdrawals = userTransactions.filter(t => t.type === 'withdrawal');
   const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
   const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-  const netInvested = totalContribs - totalPayouts;
+  const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+  const netInvested = totalContribs - totalWithdrawals;
   const expectedPayout = netInvested * 0.32;
   const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
 

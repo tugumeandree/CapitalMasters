@@ -36,7 +36,7 @@ export default function AdminPage() {
   
   // Contributions tab state
   const [contributionsSearchQuery, setContributionsSearchQuery] = useState('');
-  const [contributionsSortBy, setContributionsSortBy] = useState<'name' | 'contributions' | 'payouts' | 'netInvested'>('name');
+  const [contributionsSortBy, setContributionsSortBy] = useState<'name' | 'contributions' | 'withdrawals' | 'returns' | 'netInvested'>('name');
   const [contributionsSortOrder, setContributionsSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const formatNumber = (value: number | string | null | undefined) => {
@@ -263,11 +263,13 @@ export default function AdminPage() {
     const investorsWithData = users.map(investor => {
       const userTransactions = transactions.filter((t) => t.userId === investor._id);
       const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
-      const payouts = userTransactions.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
+      const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+      const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
       const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
-      const totalPayouts = payouts.reduce((sum, t) => sum + (t.amount || 0), 0);
-      const netInvested = totalContributions - totalPayouts;
-      return { ...investor, totalContributions, totalPayouts, netInvested };
+      const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const netInvested = totalContributions - totalWithdrawals;
+      return { ...investor, totalContributions, totalWithdrawals, totalReturns, netInvested };
     });
 
     // Filter investors
@@ -288,8 +290,11 @@ export default function AdminPage() {
         case 'contributions':
           compareValue = a.totalContributions - b.totalContributions;
           break;
-        case 'payouts':
-          compareValue = a.totalPayouts - b.totalPayouts;
+        case 'withdrawals':
+          compareValue = a.totalWithdrawals - b.totalWithdrawals;
+          break;
+        case 'returns':
+          compareValue = a.totalReturns - b.totalReturns;
           break;
         case 'netInvested':
           compareValue = a.netInvested - b.netInvested;
@@ -810,8 +815,9 @@ export default function AdminPage() {
                         >
                           <option value="name">Name</option>
                           <option value="contributions">Contributions</option>
-                          <option value="payouts">Payouts</option>
-                          <option value="netInvested">Net Invested</option>
+                          <option value="withdrawals">Withdrawals</option>
+                          <option value="returns">Returns</option>
+                          <option value="netInvested">Net Principal</option>
                         </select>
                         <button
                           onClick={() => setContributionsSortOrder(contributionsSortOrder === 'asc' ? 'desc' : 'asc')}
@@ -904,15 +910,17 @@ export default function AdminPage() {
                 {sortedInvestors.map((investor) => {
                   const userTransactions = transactions.filter((t) => t.userId === investor._id);
                   const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
-                  const payouts = userTransactions.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
+                  const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+                  const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
                   
                   const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
-                  const totalPayouts = payouts.reduce((sum, t) => sum + (t.amount || 0), 0);
-                  const netInvested = totalContributions - totalPayouts;
+                  const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+                  const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
+                  const netInvested = totalContributions - totalWithdrawals;
                   const commodityTxns = userTransactions.filter((t) => t.investmentType === 'commodities');
                   const commodityContributions = commodityTxns.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
-                  const commodityPayouts = commodityTxns.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
-                  const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityPayouts.reduce((sum, t) => sum + (t.amount || 0), 0);
+                  const commodityWithdrawals = commodityTxns.filter((t) => t.type === 'withdrawal');
+                  const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityWithdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
                   
                   const portfolio = portfolios.find((p) => p.userId === investor._id);
 
@@ -929,21 +937,26 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                         <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
                           <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Contributions</p>
                           <p className="text-xl sm:text-2xl font-bold text-blue-900">UGX {formatNumber(totalContributions)}</p>
                           <p className="text-xs text-blue-600 mt-1">{contributions.length} transactions</p>
                         </div>
+                        <div className="bg-red-50 p-3 sm:p-4 rounded-lg">
+                          <p className="text-xs sm:text-sm text-red-600 font-medium">Total Withdrawals</p>
+                          <p className="text-xl sm:text-2xl font-bold text-red-900">UGX {formatNumber(totalWithdrawals)}</p>
+                          <p className="text-xs text-red-600 mt-1">{withdrawals.length} transactions</p>
+                        </div>
                         <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
-                          <p className="text-xs sm:text-sm text-green-600 font-medium">Total Payouts</p>
-                          <p className="text-xl sm:text-2xl font-bold text-green-900">UGX {formatNumber(totalPayouts)}</p>
-                          <p className="text-xs text-green-600 mt-1">{payouts.length} transactions</p>
+                          <p className="text-xs sm:text-sm text-green-600 font-medium">Total Returns</p>
+                          <p className="text-xl sm:text-2xl font-bold text-green-900">UGX {formatNumber(totalReturns)}</p>
+                          <p className="text-xs text-green-600 mt-1">{returns.length} payouts</p>
                         </div>
                         <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
-                          <p className="text-xs sm:text-sm text-purple-600 font-medium">Net Invested</p>
+                          <p className="text-xs sm:text-sm text-purple-600 font-medium">Net Principal</p>
                           <p className="text-xl sm:text-2xl font-bold text-purple-900">UGX {formatNumber(netInvested)}</p>
-                          <p className="text-xs text-purple-600 mt-1">Return: {portfolio?.totalGain ? `UGX ${formatNumber(portfolio.totalGain)}` : 'N/A'}</p>
+                          <p className="text-xs text-purple-600 mt-1">Active investment</p>
                         </div>
                       </div>
 
