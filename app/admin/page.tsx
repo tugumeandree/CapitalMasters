@@ -872,7 +872,7 @@ export default function AdminPage() {
                               description: 'Dividend payout',
                               status: 'completed',
                               date: new Date().toISOString().split('T')[0],
-                              investmentType: 'dividend'
+                              investmentType: 'equity'
                             });
                             setActiveTab('transactions');
                           }}
