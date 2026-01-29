@@ -1315,9 +1315,10 @@ export default function AdminPage() {
 
 function UserForm({ user, onChange, onSave, onCancel }: any) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-4">{user._id ? 'Edit User' : 'Create User'}</h3>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-semibold mb-4">{user._id ? 'Edit User' : 'Create User'}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
           <input
@@ -1384,6 +1385,7 @@ function UserForm({ user, onChange, onSave, onCancel }: any) {
       <div className="flex space-x-3 mt-6">
         <button onClick={onSave} className="btn-primary">Save</button>
         <button onClick={onCancel} className="btn-outline">Cancel</button>
+      </div>
       </div>
     </div>
   );
