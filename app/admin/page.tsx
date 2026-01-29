@@ -963,23 +963,23 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="flex space-x-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => {
                             setEditingTransaction({
                               userId: investor._id,
                               type: 'deposit',
                               amount: 0,
-                              description: 'Capital contribution',
+                              description: 'Principal deposit - Capital contribution',
                               status: 'completed',
                               date: new Date().toISOString().split('T')[0],
                               investmentType: 'equity'
                             });
                             setActiveTab('transactions');
                           }}
-                          className="btn-primary text-sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
-                          + Add Contribution
+                          💰 Principal Deposit
                         </button>
                         <button
                           onClick={() => {
@@ -987,16 +987,33 @@ export default function AdminPage() {
                               userId: investor._id,
                               type: 'dividend',
                               amount: 0,
-                              description: 'Dividend payout',
+                              description: 'ROI payout - Dividend/Interest',
                               status: 'completed',
                               date: new Date().toISOString().split('T')[0],
                               investmentType: 'equity'
                             });
                             setActiveTab('transactions');
                           }}
-                          className="btn-outline text-sm"
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
-                          + Record Payout
+                          📈 ROI Payout
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingTransaction({
+                              userId: investor._id,
+                              type: 'withdrawal',
+                              amount: 0,
+                              description: 'Principal payout - Withdrawal',
+                              status: 'completed',
+                              date: new Date().toISOString().split('T')[0],
+                              investmentType: 'equity'
+                            });
+                            setActiveTab('transactions');
+                          }}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          💸 Principal Payout
                         </button>
                         <button
                           onClick={() => {
@@ -1011,9 +1028,9 @@ export default function AdminPage() {
                             });
                             setActiveTab('transactions');
                           }}
-                          className="btn-outline text-sm"
+                          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
-                          + Record Loan
+                          🤝 Record Loan
                         </button>
                       </div>
 
