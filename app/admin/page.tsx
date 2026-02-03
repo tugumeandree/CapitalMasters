@@ -24,6 +24,8 @@ export default function AdminPage() {
   const [targetTotals, setTargetTotals] = useState<Record<string, string>>({});
   const [adjustingUserId, setAdjustingUserId] = useState<string | null>(null);
   const [payoutSelections, setPayoutSelections] = useState<Record<string, string>>({});
+  const [payoutDates, setPayoutDates] = useState<Record<string, { startDate: string; endDate: string }>>({});
+  const [savingPayoutDates, setSavingPayoutDates] = useState<string | null>(null);
   
   // Users tab state
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -380,7 +382,7 @@ export default function AdminPage() {
     }
   }
 
-  async function saveUser(userData: any) {
+  async function saveUser(userData: any, silent: boolean = false) {
     try {
       const token = localStorage.getItem('token');
       const url = userData._id 
@@ -404,15 +406,21 @@ export default function AdminPage() {
         console.log('User saved successfully:', result);
         setEditingUser(null);
         fetchAllData();
-        alert('User saved successfully');
+        if (!silent) {
+          alert('User saved successfully');
+        }
       } else {
         const err = await res.json();
         console.error('Failed to save user:', err);
-        alert(err.message || 'Failed to save user');
+        if (!silent) {
+          alert(err.message || 'Failed to save user');
+        }
       }
     } catch (error) {
       console.error(error);
-      alert('Failed to save user');
+      if (!silent) {
+        alert('Failed to save user');
+      }
     }
   }
 
@@ -584,6 +592,30 @@ export default function AdminPage() {
       setTargetTotals((prev) => ({ ...prev, [userId]: target.toString() }));
     } finally {
       setAdjustingUserId(null);
+    }
+  }
+
+  async function savePayoutDates(userId: string, investor: any) {
+    const dates = payoutDates[userId];
+    if (!dates?.startDate || !dates?.endDate) {
+      alert('Please select both start and end dates');
+      return;
+    }
+
+    try {
+      setSavingPayoutDates(userId);
+      const updatedUser = {
+        ...investor,
+        payoutStartDate: dates.startDate,
+        payoutEndDate: dates.endDate
+      };
+      await saveUser(updatedUser, true);
+      alert('Payout dates saved successfully');
+    } catch (error) {
+      console.error('Error saving payout dates:', error);
+      alert('Failed to save payout dates');
+    } finally {
+      setSavingPayoutDates(null);
     }
   }
 
@@ -980,10 +1012,18 @@ export default function AdminPage() {
                               <label className="text-xs text-indigo-600">Start Date</label>
                               <input
                                 type="date"
-                                value={investor.payoutStartDate ? new Date(investor.payoutStartDate).toISOString().split('T')[0] : ''}
+                                value={
+                                  payoutDates[investor._id]?.startDate || 
+                                  (investor.payoutStartDate ? new Date(investor.payoutStartDate).toISOString().split('T')[0] : '')
+                                }
                                 onChange={(e) => {
-                                  const updatedUser = { ...investor, payoutStartDate: e.target.value };
-                                  saveUser(updatedUser);
+                                  setPayoutDates((prev) => ({
+                                    ...prev,
+                                    [investor._id]: {
+                                      ...prev[investor._id],
+                                      startDate: e.target.value
+                                    }
+                                  }));
                                 }}
                                 className="input-field text-sm"
                               />
@@ -992,18 +1032,33 @@ export default function AdminPage() {
                               <label className="text-xs text-indigo-600">End Date</label>
                               <input
                                 type="date"
-                                value={investor.payoutEndDate ? new Date(investor.payoutEndDate).toISOString().split('T')[0] : ''}
+                                value={
+                                  payoutDates[investor._id]?.endDate || 
+                                  (investor.payoutEndDate ? new Date(investor.payoutEndDate).toISOString().split('T')[0] : '')
+                                }
                                 onChange={(e) => {
-                                  const updatedUser = { ...investor, payoutEndDate: e.target.value };
-                                  saveUser(updatedUser);
+                                  setPayoutDates((prev) => ({
+                                    ...prev,
+                                    [investor._id]: {
+                                      ...prev[investor._id],
+                                      endDate: e.target.value
+                                    }
+                                  }));
                                 }}
                                 className="input-field text-sm"
                               />
                             </div>
+                            <button
+                              onClick={() => savePayoutDates(investor._id, investor)}
+                              disabled={savingPayoutDates === investor._id}
+                              className="btn-primary text-sm mt-2"
+                            >
+                              {savingPayoutDates === investor._id ? 'Saving...' : 'Save Dates'}
+                            </button>
                           </div>
                           <p className="text-xs text-indigo-600 mt-2">
                             {investor.payoutStartDate && investor.payoutEndDate 
-                              ? `Payout period: ${new Date(investor.payoutStartDate).toLocaleDateString()} - ${new Date(investor.payoutEndDate).toLocaleDateString()}`
+                              ? `Current period: ${new Date(investor.payoutStartDate).toLocaleDateString()} - ${new Date(investor.payoutEndDate).toLocaleDateString()}`
                               : 'Set the payout period for this investor'}
                           </p>
                         </div>
