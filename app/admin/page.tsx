@@ -587,19 +587,30 @@ export default function AdminPage() {
     }
   }
 
-  async function generatePayout(userId: string, amount: number, date: string) {
+  async function generatePayout(investor: any, amount: number) {
     if (!amount || amount <= 0) {
       alert('No principal available for payout calculation.');
       return;
     }
+    
+    if (!investor.payoutStartDate || !investor.payoutEndDate) {
+      alert('Please set the payout date range first before generating a payout.');
+      return;
+    }
+
+    const payoutStartDate = new Date(investor.payoutStartDate).toISOString().split('T')[0];
+    const payoutEndDate = new Date(investor.payoutEndDate).toISOString().split('T')[0];
+    
     await saveTransaction({
-      userId,
+      userId: investor._id,
       type: 'dividend',
       amount,
-      description: `Scheduled commodities payout (${date})`,
+      description: `Scheduled payout for period ${payoutStartDate} to ${payoutEndDate}`,
       status: 'completed',
-      date,
+      date: new Date().toISOString().split('T')[0],
       investmentType: 'commodities',
+      payoutStartDate: investor.payoutStartDate,
+      payoutEndDate: investor.payoutEndDate,
     });
   }
 
@@ -961,6 +972,41 @@ export default function AdminPage() {
                           </div>
                           <p className="text-xs text-gray-600 mt-2">Creates an adjustment transaction so dashboards stay in sync.</p>
                         </div>
+
+                        <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-lg">
+                          <p className="text-sm font-semibold text-indigo-800 mb-2">Set Payout Date Range</p>
+                          <div className="flex flex-col gap-2">
+                            <div>
+                              <label className="text-xs text-indigo-600">Start Date</label>
+                              <input
+                                type="date"
+                                value={investor.payoutStartDate ? new Date(investor.payoutStartDate).toISOString().split('T')[0] : ''}
+                                onChange={(e) => {
+                                  const updatedUser = { ...investor, payoutStartDate: e.target.value };
+                                  saveUser(updatedUser);
+                                }}
+                                className="input-field text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-indigo-600">End Date</label>
+                              <input
+                                type="date"
+                                value={investor.payoutEndDate ? new Date(investor.payoutEndDate).toISOString().split('T')[0] : ''}
+                                onChange={(e) => {
+                                  const updatedUser = { ...investor, payoutEndDate: e.target.value };
+                                  saveUser(updatedUser);
+                                }}
+                                className="input-field text-sm"
+                              />
+                            </div>
+                          </div>
+                          <p className="text-xs text-indigo-600 mt-2">
+                            {investor.payoutStartDate && investor.payoutEndDate 
+                              ? `Payout period: ${new Date(investor.payoutStartDate).toLocaleDateString()} - ${new Date(investor.payoutEndDate).toLocaleDateString()}`
+                              : 'Set the payout period for this investor'}
+                          </p>
+                        </div>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
@@ -1079,38 +1125,35 @@ export default function AdminPage() {
                               </div>
                               <p className="text-xs text-amber-700 mt-2">Next payout calculation based on current principal</p>
 
-                              <div className="mt-4 bg-white/70 border border-amber-200 rounded p-3 flex flex-col md:flex-row md:items-center gap-3">
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-amber-900">Schedule Payout (32%)</p>
-                                  <p className="text-xs text-amber-700">Payout months: January, May, September</p>
-                                </div>
-                                <div className="flex-1">
-                                  <label className="text-xs text-amber-700">Payout Month</label>
-                                  <select
-                                    className="input-field"
-                                    value={payoutSelections[investor._id] || defaultPayoutDate()}
-                                    onChange={(e) => setPayoutSelections((prev) => ({ ...prev, [investor._id]: e.target.value }))}
-                                  >
-                                    {buildPayoutOptions().map((opt) => (
-                                      <option key={`${investor._id}-${opt.value}`} value={opt.value}>{opt.label}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-xs text-amber-700 mb-1">Payout Amount (32%)</p>
-                                  <p className="font-bold text-amber-900">UGX {formatNumber(commodityPrincipal * 0.32)}</p>
-                                </div>
-                                <div>
-                                  <button
-                                    onClick={() => generatePayout(
-                                      investor._id,
-                                      commodityPrincipal * 0.32,
-                                      payoutSelections[investor._id] || defaultPayoutDate()
+                              <div className="mt-4 bg-white/70 border border-amber-200 rounded p-3">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-semibold text-amber-900">Generate Payout Transaction</p>
+                                    {investor.payoutStartDate && investor.payoutEndDate ? (
+                                      <p className="text-xs text-amber-700 mt-1">
+                                        Payout period: {new Date(investor.payoutStartDate).toLocaleDateString()} - {new Date(investor.payoutEndDate).toLocaleDateString()}
+                                      </p>
+                                    ) : (
+                                      <p className="text-xs text-red-600 mt-1">⚠️ Please set payout date range above first</p>
                                     )}
-                                    className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded text-sm"
-                                  >
-                                    Create Payout
-                                  </button>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-xs text-amber-700 mb-1">Payout Amount (32%)</p>
+                                    <p className="font-bold text-amber-900 text-lg">UGX {formatNumber(commodityPrincipal * 0.32)}</p>
+                                  </div>
+                                  <div>
+                                    <button
+                                      onClick={() => generatePayout(investor, commodityPrincipal * 0.32)}
+                                      disabled={!investor.payoutStartDate || !investor.payoutEndDate}
+                                      className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                                        investor.payoutStartDate && investor.payoutEndDate
+                                          ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                      }`}
+                                    >
+                                      Create Payout
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>

@@ -16,6 +16,8 @@ export interface User {
   address?: string;
   createdAt: Date;
   updatedAt: Date;
+  payoutStartDate?: Date; // Scheduled payout period start
+  payoutEndDate?: Date; // Scheduled payout period end
 }
 
 /**
