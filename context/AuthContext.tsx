@@ -13,6 +13,8 @@ interface User {
   memberSince?: string;
   phone?: string;
   address?: string;
+  payoutStartDate?: string;
+  payoutEndDate?: string;
 }
 
 interface AuthContextType {

@@ -370,7 +370,13 @@ export default function ClientPortal() {
                       })()}
                   </div>
                   <div className="mt-2 text-xs text-gray-600">
-                    <div className="font-semibold text-purple-600">Payment: May 23-30, 2026</div>
+                    <div className="font-semibold text-purple-600">
+                      {user?.payoutStartDate && user?.payoutEndDate ? (
+                        `Payment: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { day: '2-digit', year: 'numeric' })}`
+                      ) : (
+                        'Payment: May 23-30, 2026'
+                      )}
+                    </div>
                     <div className="text-xs text-gray-500">4-Month Cycle (Jan-Apr 2026)</div>
                   </div>
                 </div>
@@ -406,7 +412,13 @@ export default function ClientPortal() {
                       })()}
                   </div>
                   <div className="mt-3 text-xs text-gray-600 space-y-1">
-                    <div className="font-semibold text-purple-600">Payment: Jan 23-30, 2026</div>
+                    <div className="font-semibold text-purple-600">
+                      {user?.payoutStartDate && user?.payoutEndDate ? (
+                        `Payment: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { day: '2-digit', year: 'numeric' })}`
+                      ) : (
+                        'Payment: Jan 23-30, 2026'
+                      )}
+                    </div>
                     <div className="text-xs text-gray-500 mb-2">4-Month Season Returns (Sep-Dec 2025)</div>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
