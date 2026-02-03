@@ -347,10 +347,18 @@ export default function ClientPortal() {
             {/* Portfolio Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               {user?.email === 'ronaldopa323@gmail.com' ? (
-                // Ronald just invested - show Expected May Payout
+                // Ronald just invested - show Expected Payout
                 <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Expected May Payout</span>
+                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">
+                      {(() => {
+                        if (user?.payoutStartDate) {
+                          const payoutMonth = new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'long' });
+                          return `Expected ${payoutMonth} Payout`;
+                        }
+                        return 'Expected May Payout';
+                      })()}
+                    </span>
                     <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-green-600">
@@ -377,14 +385,34 @@ export default function ClientPortal() {
                         'Payout week: May 23-May 30, 2026'
                       )}
                     </div>
-                    <div className="text-xs text-gray-500">4-Month Cycle (Jan-Apr 2026)</div>
+                    <div className="text-xs text-gray-500">
+                      {(() => {
+                        if (user?.payoutStartDate) {
+                          const payoutDate = new Date(user.payoutStartDate);
+                          const seasonEnd = new Date(payoutDate);
+                          seasonEnd.setMonth(seasonEnd.getMonth() - 1);
+                          const seasonStart = new Date(seasonEnd);
+                          seasonStart.setMonth(seasonStart.getMonth() - 3);
+                          return `4-Month Cycle (${seasonStart.toLocaleDateString('en-US', { month: 'short' })}-${seasonEnd.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })})`;
+                        }
+                        return '4-Month Cycle (Jan-Apr 2026)';
+                      })()}
+                    </div>
                   </div>
                 </div>
               ) : (
-                // Other investors - show January Payout
+                // Other investors - show Expected Payout
                 <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">Expected January Payout</span>
+                    <span className="text-gray-600 text-xs sm:text-sm font-semibold">
+                      {(() => {
+                        if (user?.payoutStartDate) {
+                          const payoutMonth = new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'long' });
+                          return `Expected ${payoutMonth} Payout`;
+                        }
+                        return 'Expected January Payout';
+                      })()}
+                    </span>
                     <BanknotesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-green-600">
@@ -419,7 +447,19 @@ export default function ClientPortal() {
                         'Payout week: Jan 23-Jan 30, 2026'
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 mb-2">4-Month Season Returns (Sep-Dec 2025)</div>
+                    <div className="text-xs text-gray-500 mb-2">
+                      {(() => {
+                        if (user?.payoutStartDate) {
+                          const payoutDate = new Date(user.payoutStartDate);
+                          const seasonEnd = new Date(payoutDate);
+                          seasonEnd.setMonth(seasonEnd.getMonth() - 1);
+                          const seasonStart = new Date(seasonEnd);
+                          seasonStart.setMonth(seasonStart.getMonth() - 3);
+                          return `4-Month Season Returns (${seasonStart.toLocaleDateString('en-US', { month: 'short' })}-${seasonEnd.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })})`;
+                        }
+                        return '4-Month Season Returns (Sep-Dec 2025)';
+                      })()}
+                    </div>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between">
                         <span>Gross Return (10%/month):</span>
