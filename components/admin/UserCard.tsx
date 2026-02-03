@@ -17,26 +17,12 @@ export default function UserCard({ user, portfolios, transactions, onEdit, onDel
   
   const userTransactions = transactions.filter(t => t.userId === user._id);
   const userPortfolio = portfolios.find(p => p.userId === user._id);
-  const contributions = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
-  const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
-
-  const oldestTxn = userTransactions.sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  )[0];
-  const investmentDate = oldestTxn ? new Date(oldestTxn.date) : new Date();
-  const isEligibleFor2026Jan = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
-  const isRonald = user.email === 'ronaldopa323@gmail.com';
-  
-  const payouts = userTransactions.filter(t => 
-    ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type)
-  );
+  const deposits = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
   const withdrawals = userTransactions.filter(t => t.type === 'withdrawal');
-  const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
-  const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-  const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-  const netInvested = totalContribs - totalWithdrawals;
+  const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const netInvested = totalDeposits - totalWithdrawals;
   const expectedPayout = netInvested * 0.32;
-  const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
 
   return (
     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
@@ -79,16 +65,16 @@ export default function UserCard({ user, portfolios, transactions, onEdit, onDel
               <span className="text-sm font-bold text-gray-900">UGX {formatNumber(netInvested)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-gray-600">Total Contributions</span>
-              <span className="text-sm font-bold text-blue-600">UGX {formatNumber(totalContributions)}</span>
-            </div>
-            <div className="flex justify-between items-center border-t border-gray-200 pt-2 mt-2">
-              <span className="text-xs font-medium text-gray-600">Expected Payout ({payoutMonth})</span>
-              <span className="text-sm font-bold text-green-600">UGX {formatNumber(expectedPayout)}</span>
+              <span className="text-xs font-medium text-gray-600">Total Deposits</span>
+              <span className="text-sm font-bold text-blue-600">UGX {formatNumber(totalDeposits)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-gray-600">Transactions</span>
-              <span className="text-sm font-bold text-gray-900">{userTransactions.length}</span>
+              <span className="text-xs font-medium text-gray-600">Total Withdrawals</span>
+              <span className="text-sm font-bold text-red-600">UGX {formatNumber(totalWithdrawals)}</span>
+            </div>
+            <div className="flex justify-between items-center border-t border-gray-200 pt-2 mt-2">
+              <span className="text-xs font-medium text-gray-600">Expected Payout (June 2026)</span>
+              <span className="text-sm font-bold text-green-600">UGX {formatNumber(expectedPayout)}</span>
             </div>
           </div>
         )}

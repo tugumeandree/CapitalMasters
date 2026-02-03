@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import UsersTab from '@/components/admin/UsersTab';
 
-type Tab = 'users' | 'portfolios' | 'transactions' | 'contributions';
+type Tab = 'users' | 'portfolios' | 'transactions' | 'deposits';
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -34,10 +34,10 @@ export default function AdminPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
   
-  // Contributions tab state
-  const [contributionsSearchQuery, setContributionsSearchQuery] = useState('');
-  const [contributionsSortBy, setContributionsSortBy] = useState<'name' | 'contributions' | 'withdrawals' | 'returns' | 'netInvested'>('name');
-  const [contributionsSortOrder, setContributionsSortOrder] = useState<'asc' | 'desc'>('asc');
+  // Deposits tab state
+  const [depositsSearchQuery, setDepositsSearchQuery] = useState('');
+  const [depositsSortBy, setDepositsSortBy] = useState<'name' | 'deposits' | 'withdrawals' | 'returns' | 'netInvested'>('name');
+  const [depositsSortOrder, setDepositsSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const formatNumber = (value: number | string | null | undefined) => {
     const num = typeof value === 'string' ? Number(value) : value;
@@ -178,15 +178,15 @@ export default function AdminPage() {
     }
   };
 
-  const exportContributions = (format: 'pdf' | 'excel') => {
-    const contributions = users.filter(u => u.role !== 'admin').map(u => {
+  const exportDeposits = (format: 'pdf' | 'excel') => {
+    const deposits = users.filter(u => u.role !== 'admin').map(u => {
       const userTransactions = transactions.filter(t => t.userId === u._id);
-      const deposits = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
-      const totalContributions = deposits.reduce((sum, t) => sum + t.amount, 0);
-      return { user: u, total: totalContributions, count: deposits.length };
+      const depositTxns = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
+      const totalDeposits = depositTxns.reduce((sum, t) => sum + t.amount, 0);
+      return { user: u, total: totalDeposits, count: depositTxns.length };
     });
     
-    const columns = ['Investor Name', 'Email', 'Total Contributions', 'Number of Deposits'];
+    const columns = ['Investor Name', 'Email', 'Total Deposits', 'Number of Deposits'];
     const rowGenerator = (item: any) => [
       item.user.name || 'N/A',
       item.user.email,
@@ -195,9 +195,9 @@ export default function AdminPage() {
     ];
     
     if (format === 'pdf') {
-      exportToPDF(contributions, 'Contributions Report', columns, rowGenerator);
+      exportToPDF(deposits, 'Deposits Report', columns, rowGenerator);
     } else {
-      exportToExcel(contributions, 'Contributions Report', columns, rowGenerator);
+      exportToExcel(deposits, 'Deposits Report', columns, rowGenerator);
     }
   };
 
@@ -258,37 +258,37 @@ export default function AdminPage() {
     }
   }, [loading, user, router]);
 
-  // Compute filtered and sorted investors for contributions tab
+  // Compute filtered and sorted investors for deposits tab
   const { filteredInvestors, sortedInvestors } = useMemo(() => {
     const investorsWithData = users.map(investor => {
       const userTransactions = transactions.filter((t) => t.userId === investor._id);
-      const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+      const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
       const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
       const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
-      const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
       const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
       const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
-      const netInvested = totalContributions - totalWithdrawals;
-      return { ...investor, totalContributions, totalWithdrawals, totalReturns, netInvested };
+      const netInvested = totalDeposits - totalWithdrawals;
+      return { ...investor, totalDeposits, totalWithdrawals, totalReturns, netInvested };
     });
 
     // Filter investors
     const filtered = investorsWithData.filter(inv => {
-      const matchesSearch = contributionsSearchQuery === '' ||
-        inv.name?.toLowerCase().includes(contributionsSearchQuery.toLowerCase()) ||
-        inv.email?.toLowerCase().includes(contributionsSearchQuery.toLowerCase());
+      const matchesSearch = depositsSearchQuery === '' ||
+        inv.name?.toLowerCase().includes(depositsSearchQuery.toLowerCase()) ||
+        inv.email?.toLowerCase().includes(depositsSearchQuery.toLowerCase());
       return matchesSearch;
     });
 
     // Sort investors
     const sorted = [...filtered].sort((a, b) => {
       let compareValue = 0;
-      switch (contributionsSortBy) {
+      switch (depositsSortBy) {
         case 'name':
           compareValue = (a.name || '').localeCompare(b.name || '');
           break;
-        case 'contributions':
-          compareValue = a.totalContributions - b.totalContributions;
+        case 'deposits':
+          compareValue = a.totalDeposits - b.totalDeposits;
           break;
         case 'withdrawals':
           compareValue = a.totalWithdrawals - b.totalWithdrawals;
@@ -300,11 +300,11 @@ export default function AdminPage() {
           compareValue = a.netInvested - b.netInvested;
           break;
       }
-      return contributionsSortOrder === 'asc' ? compareValue : -compareValue;
+      return depositsSortOrder === 'asc' ? compareValue : -compareValue;
     });
 
     return { filteredInvestors: filtered, sortedInvestors: sorted };
-  }, [users, transactions, contributionsSearchQuery, contributionsSortBy, contributionsSortOrder]);
+  }, [users, transactions, depositsSearchQuery, depositsSortBy, depositsSortOrder]);
 
   // Compute filtered, sorted, and paginated users
   const { filteredUsers, sortedUsers, paginatedUsers, totalPages } = useMemo(() => {
@@ -560,7 +560,7 @@ export default function AdminPage() {
     }
   }
 
-  async function adjustContributionTarget(userId: string, currentTotal: number, targetRaw: string) {
+  async function adjustDepositTarget(userId: string, currentTotal: number, targetRaw: string) {
     const cleanTarget = ((targetRaw || '').toString().trim()).replace(/,/g, '');
     const target = cleanTarget === '' ? currentTotal : parseFloat(cleanTarget) || 0;
     const delta = target - currentTotal;
@@ -679,14 +679,14 @@ export default function AdminPage() {
               Users ({users.length})
             </button>
             <button
-              onClick={() => setActiveTab('contributions')}
+              onClick={() => setActiveTab('deposits')}
               className={`flex-1 py-2.5 px-4 sm:px-6 rounded-md text-xs sm:text-sm font-medium transition-all whitespace-nowrap min-w-[100px] ${
-                activeTab === 'contributions'
+                activeTab === 'deposits'
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900 active:bg-gray-300'
               }`}
             >
-              Contributions
+              Deposits
             </button>
             <button
               onClick={() => setActiveTab('portfolios')}
@@ -752,17 +752,17 @@ export default function AdminPage() {
             )}
 
 
-            {/* Contributions Tab */}
-            {activeTab === 'contributions' && (
+            {/* Deposits Tab */}
+            {activeTab === 'deposits' && (
               <div>
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Investment Contributions & Payouts</h2>
-                    <p className="text-sm text-gray-600">Track capital contributions, loans, and dividend/interest payouts for each investor.</p>
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Investment Deposits & Payouts</h2>
+                    <p className="text-sm text-gray-600">Track capital deposits, loans, and dividend/interest payouts for each investor.</p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
-                      onClick={() => exportContributions('pdf')}
+                      onClick={() => exportDeposits('pdf')}
                       className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                       title="Export to PDF"
                     >
@@ -772,7 +772,7 @@ export default function AdminPage() {
                       <span className="hidden sm:inline">PDF</span>
                     </button>
                     <button
-                      onClick={() => exportContributions('excel')}
+                      onClick={() => exportDeposits('excel')}
                       className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                       title="Export to Excel"
                     >
@@ -793,8 +793,8 @@ export default function AdminPage() {
                       <div className="relative">
                         <input
                           type="text"
-                          value={contributionsSearchQuery}
-                          onChange={(e) => setContributionsSearchQuery(e.target.value)}
+                          value={depositsSearchQuery}
+                          onChange={(e) => setDepositsSearchQuery(e.target.value)}
                           placeholder="Search by name or email..."
                           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         />
@@ -809,23 +809,23 @@ export default function AdminPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
                       <div className="flex gap-2">
                         <select
-                          value={contributionsSortBy}
-                          onChange={(e) => setContributionsSortBy(e.target.value as any)}
+                          value={depositsSortBy}
+                          onChange={(e) => setDepositsSortBy(e.target.value as any)}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                           <option value="name">Name</option>
-                          <option value="contributions">Contributions</option>
+                          <option value="deposits">Deposits</option>
                           <option value="withdrawals">Withdrawals</option>
                           <option value="returns">Returns</option>
                           <option value="netInvested">Net Principal</option>
                         </select>
                         <button
-                          onClick={() => setContributionsSortOrder(contributionsSortOrder === 'asc' ? 'desc' : 'asc')}
+                          onClick={() => setDepositsSortOrder(depositsSortOrder === 'asc' ? 'desc' : 'asc')}
                           className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                          title={contributionsSortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
+                          title={depositsSortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
                         >
                           <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {contributionsSortOrder === 'asc' ? (
+                            {depositsSortOrder === 'asc' ? (
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                             ) : (
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
@@ -885,14 +885,14 @@ export default function AdminPage() {
 
                 {sortedInvestors.map((investor) => {
                   const userTransactions = transactions.filter((t) => t.userId === investor._id);
-                  const contributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+                  const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
                   const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
                   const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
                   
-                  const totalContributions = contributions.reduce((sum, t) => sum + (t.amount || 0), 0);
+                  const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
                   const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
                   const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
-                  const netInvested = totalContributions - totalWithdrawals;
+                  const netInvested = totalDeposits - totalWithdrawals;
                   const commodityTxns = userTransactions.filter((t) => t.investmentType === 'commodities');
                   const commodityContributions = commodityTxns.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
                   const commodityWithdrawals = commodityTxns.filter((t) => t.type === 'withdrawal');
@@ -915,9 +915,9 @@ export default function AdminPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                         <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
-                          <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Contributions</p>
-                          <p className="text-xl sm:text-2xl font-bold text-blue-900">UGX {formatNumber(totalContributions)}</p>
-                          <p className="text-xs text-blue-600 mt-1">{contributions.length} transactions</p>
+                          <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Deposits</p>
+                          <p className="text-xl sm:text-2xl font-bold text-blue-900">UGX {formatNumber(totalDeposits)}</p>
+                          <p className="text-xs text-blue-600 mt-1">{deposits.length} transactions</p>
                         </div>
                         <div className="bg-red-50 p-3 sm:p-4 rounded-lg">
                           <p className="text-xs sm:text-sm text-red-600 font-medium">Total Withdrawals</p>
@@ -938,20 +938,20 @@ export default function AdminPage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-                          <p className="text-sm font-semibold text-gray-800 mb-2">Set Total Contributions</p>
+                          <p className="text-sm font-semibold text-gray-800 mb-2">Set Total Deposits</p>
                           <div className="flex flex-col sm:flex-row gap-2">
                             <input
                               type="text"
                               value={targetTotals[investor._id] ?? ''}
                               onChange={(e) => setTargetTotals((prev) => ({ ...prev, [investor._id]: e.target.value }))}
                               className="input-field flex-1"
-                                placeholder={`UGX ${formatNumber(totalContributions)}`}
+                                placeholder={`UGX ${formatNumber(totalDeposits)}`}
                             />
                             <button
-                              onClick={() => adjustContributionTarget(
+                              onClick={() => adjustDepositTarget(
                                 investor._id,
-                                totalContributions,
-                                targetTotals[investor._id] ?? totalContributions.toString()
+                                totalDeposits,
+                                targetTotals[investor._id] ?? totalDeposits.toString()
                               )}
                               disabled={adjustingUserId === investor._id}
                               className="btn-primary text-sm w-full sm:w-auto"
@@ -1047,7 +1047,7 @@ export default function AdminPage() {
                                       userId: investor._id,
                                       type: 'deposit',
                                       amount: 0,
-                                      description: 'Additional commodities contribution',
+                                      description: 'Additional commodities deposit',
                                       status: 'completed',
                                       date: new Date().toISOString().split('T')[0],
                                       investmentType: 'commodities'
@@ -1460,7 +1460,7 @@ function TransactionForm({ transaction, users, onChange, onSave, onCancel }: any
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">{transaction._id ? 'Edit Transaction' : 'Create Transaction'}</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">User</label>
           <select
@@ -1542,7 +1542,7 @@ function TransactionForm({ transaction, users, onChange, onSave, onCancel }: any
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Date</label>
           <input
             type="date"
             value={transaction.date || ''}
@@ -1550,6 +1550,17 @@ function TransactionForm({ transaction, users, onChange, onSave, onCancel }: any
             className="input-field"
             required
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Investment Start Date</label>
+          <input
+            type="date"
+            value={transaction.investmentStartDate || ''}
+            onChange={(e) => onChange({ ...transaction, investmentStartDate: e.target.value })}
+            className="input-field"
+            placeholder="When investment started"
+          />
+          <p className="text-xs text-gray-500 mt-1">Optional: Actual date when investment began</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -1599,6 +1610,45 @@ function TransactionForm({ transaction, users, onChange, onSave, onCancel }: any
             className="input-field"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Payout Start Date</label>
+          <input
+            type="date"
+            value={transaction.payoutStartDate || ''}
+            onChange={(e) => onChange({ ...transaction, payoutStartDate: e.target.value })}
+            className="input-field"
+          />
+          <p className="text-xs text-gray-500 mt-1">Optional: Start of payout period</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Payout End Date</label>
+          <input
+            type="date"
+            value={transaction.payoutEndDate || ''}
+            onChange={(e) => onChange({ ...transaction, payoutEndDate: e.target.value })}
+            className="input-field"
+          />
+          <p className="text-xs text-gray-500 mt-1">Optional: End of payout period</p>
+        </div>
+        {transaction.investmentType === 'commodities' && transaction.amount > 0 && (
+          <div className="col-span-1 md:col-span-2 bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-blue-900 mb-2">📅 Investment Timeline Guide</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-blue-700 font-medium">Investment Start Date</p>
+                <p className="text-xs text-blue-600">When the investor's money was first deposited</p>
+              </div>
+              <div>
+                <p className="text-blue-700 font-medium">Payout Period</p>
+                <p className="text-xs text-blue-600">Start and end dates for scheduled payout calculation</p>
+              </div>
+              <div>
+                <p className="text-blue-700 font-medium">Transaction Date</p>
+                <p className="text-xs text-blue-600">When this specific transaction occurred</p>
+              </div>
+            </div>
+          </div>
+        )}
         {transaction.investmentType === 'commodities' && transaction.amount > 0 && (
           <div className="col-span-2 bg-blue-50 p-4 rounded-lg">
             <h4 className="font-semibold text-blue-900 mb-2">4-Month Payout Calculation (Paid Quarterly)</h4>

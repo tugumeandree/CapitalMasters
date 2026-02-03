@@ -80,6 +80,9 @@ export interface Transaction {
   commodityCompany?: 'Dregif Coffee Ltd (Coffee & Cocoa)' | 'Stanfield Commodities Exchange (Coffee)' | 'Both';
   returnRate?: number;
   maturityDate?: Date;
+  investmentStartDate?: Date; // When the investment actually started
+  payoutStartDate?: Date; // Start of payout period (for scheduled payouts)
+  payoutEndDate?: Date; // End of payout period (for scheduled payouts)
 }
 
 /**

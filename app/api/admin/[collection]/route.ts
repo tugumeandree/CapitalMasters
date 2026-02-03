@@ -86,6 +86,15 @@ export async function POST(request: NextRequest) {
   if (body.maturityDate && typeof body.maturityDate === 'string') {
     body.maturityDate = new Date(body.maturityDate);
   }
+  if (body.investmentStartDate && typeof body.investmentStartDate === 'string') {
+    body.investmentStartDate = new Date(body.investmentStartDate);
+  }
+  if (body.payoutStartDate && typeof body.payoutStartDate === 'string') {
+    body.payoutStartDate = new Date(body.payoutStartDate);
+  }
+  if (body.payoutEndDate && typeof body.payoutEndDate === 'string') {
+    body.payoutEndDate = new Date(body.payoutEndDate);
+  }
   if (body.memberSince && typeof body.memberSince === 'string') {
     body.memberSince = new Date(body.memberSince);
   }
@@ -151,6 +160,15 @@ export async function PUT(request: NextRequest) {
   }
   if (body.maturityDate && typeof body.maturityDate === 'string') {
     body.maturityDate = new Date(body.maturityDate);
+  }
+  if (body.investmentStartDate && typeof body.investmentStartDate === 'string') {
+    body.investmentStartDate = new Date(body.investmentStartDate);
+  }
+  if (body.payoutStartDate && typeof body.payoutStartDate === 'string') {
+    body.payoutStartDate = new Date(body.payoutStartDate);
+  }
+  if (body.payoutEndDate && typeof body.payoutEndDate === 'string') {
+    body.payoutEndDate = new Date(body.payoutEndDate);
   }
   if (body.memberSince && typeof body.memberSince === 'string') {
     body.memberSince = new Date(body.memberSince);
