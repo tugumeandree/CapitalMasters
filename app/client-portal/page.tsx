@@ -372,9 +372,9 @@ export default function ClientPortal() {
                   <div className="mt-2 text-xs text-gray-600">
                     <div className="font-semibold text-purple-600">
                       {user?.payoutStartDate && user?.payoutEndDate ? (
-                        `Payment: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { day: '2-digit', year: 'numeric' })}`
+                        `Payout week: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`
                       ) : (
-                        'Payment: May 23-30, 2026'
+                        'Payout week: May 23-May 30, 2026'
                       )}
                     </div>
                     <div className="text-xs text-gray-500">4-Month Cycle (Jan-Apr 2026)</div>
@@ -414,9 +414,9 @@ export default function ClientPortal() {
                   <div className="mt-3 text-xs text-gray-600 space-y-1">
                     <div className="font-semibold text-purple-600">
                       {user?.payoutStartDate && user?.payoutEndDate ? (
-                        `Payment: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { day: '2-digit', year: 'numeric' })}`
+                        `Payout week: ${new Date(user.payoutStartDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}-${new Date(user.payoutEndDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`
                       ) : (
-                        'Payment: Jan 23-30, 2026'
+                        'Payout week: Jan 23-Jan 30, 2026'
                       )}
                     </div>
                     <div className="text-xs text-gray-500 mb-2">4-Month Season Returns (Sep-Dec 2025)</div>
