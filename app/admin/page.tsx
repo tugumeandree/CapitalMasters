@@ -597,7 +597,12 @@ export default function AdminPage() {
 
   async function savePayoutDates(userId: string, investor: any) {
     const dates = payoutDates[userId];
-    if (!dates?.startDate || !dates?.endDate) {
+    
+    // Check if dates are in state or already saved in investor object
+    const startDate = dates?.startDate || (investor.payoutStartDate ? new Date(investor.payoutStartDate).toISOString().split('T')[0] : '');
+    const endDate = dates?.endDate || (investor.payoutEndDate ? new Date(investor.payoutEndDate).toISOString().split('T')[0] : '');
+    
+    if (!startDate || !endDate) {
       alert('Please select both start and end dates');
       return;
     }
@@ -606,10 +611,16 @@ export default function AdminPage() {
       setSavingPayoutDates(userId);
       const updatedUser = {
         ...investor,
-        payoutStartDate: dates.startDate,
-        payoutEndDate: dates.endDate
+        payoutStartDate: startDate,
+        payoutEndDate: endDate
       };
       await saveUser(updatedUser, true);
+      // Clear the state after successful save
+      setPayoutDates((prev) => {
+        const updated = { ...prev };
+        delete updated[userId];
+        return updated;
+      });
       alert('Payout dates saved successfully');
     } catch (error) {
       console.error('Error saving payout dates:', error);
