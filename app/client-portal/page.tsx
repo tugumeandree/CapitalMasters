@@ -461,37 +461,7 @@ export default function ClientPortal() {
                       })()}
                     </div>
                     <div className="border-t pt-2 mt-2">
-                      <div className="flex justify-between">
-                        <span>Gross Return (10%/month):</span>
-                        <span className="font-semibold">
-                          {(() => {
-                            const contributions = dashboardData.transactions.filter(t => 
-                              ['deposit', 'investment', 'loan_given'].includes(t.type)
-                            );
-                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
-                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalWithdrawals;
-                            return formatPrimaryAndSecondary(netInvested * 0.10).primary;
-                          })()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-red-600">
-                        <span>Fees (2%/month):</span>
-                        <span className="font-semibold">
-                          -{(() => {
-                            const contributions = dashboardData.transactions.filter(t => 
-                              ['deposit', 'investment', 'loan_given'].includes(t.type)
-                            );
-                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
-                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalWithdrawals;
-                            return formatPrimaryAndSecondary(netInvested * 0.02).primary;
-                          })()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between font-semibold text-blue-600 border-t pt-1 mt-1">
+                      <div className="flex justify-between font-semibold text-blue-600">
                         <span>Net Per Month (8%):</span>
                         <span>
                           {(() => {
