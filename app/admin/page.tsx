@@ -1288,7 +1288,23 @@ export default function AdminPage() {
                               </span>
                             </td>
                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm space-x-2">
-                              <button onClick={() => setEditingTransaction(t)} className="text-blue-600 hover:text-blue-900">Edit</button>
+                              <button onClick={() => {
+                                // Format dates for date inputs
+                                const formatDate = (date: any) => {
+                                  if (!date) return '';
+                                  const d = new Date(date);
+                                  return d.toISOString().split('T')[0];
+                                };
+                                
+                                setEditingTransaction({
+                                  ...t,
+                                  date: formatDate(t.date),
+                                  investmentStartDate: formatDate(t.investmentStartDate),
+                                  payoutStartDate: formatDate(t.payoutStartDate),
+                                  payoutEndDate: formatDate(t.payoutEndDate),
+                                  maturityDate: formatDate(t.maturityDate)
+                                });
+                              }} className="text-blue-600 hover:text-blue-900">Edit</button>
                               <button onClick={() => deleteTransaction(t._id)} className="text-red-600 hover:text-red-900">Delete</button>
                             </td>
                           </tr>
