@@ -1019,7 +1019,17 @@ export default function ClientPortal() {
 
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Returns Timeline (Sep-Dec 2025 Cycle)
+              {(() => {
+                if (user?.payoutStartDate) {
+                  const payoutDate = new Date(user.payoutStartDate);
+                  const seasonEnd = new Date(payoutDate);
+                  seasonEnd.setMonth(seasonEnd.getMonth() - 1);
+                  const seasonStart = new Date(seasonEnd);
+                  seasonStart.setMonth(seasonStart.getMonth() - 3);
+                  return `Returns Timeline (${seasonStart.toLocaleDateString('en-US', { month: 'short' })}-${seasonEnd.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} Cycle)`;
+                }
+                return 'Returns Timeline (Sep-Dec 2025 Cycle)';
+              })()}
             </h2>
             {(() => {
               // Calculate net invested amount
