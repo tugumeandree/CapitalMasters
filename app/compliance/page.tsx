@@ -12,8 +12,8 @@ export default function Compliance() {
       {/* Hero Section */}
       <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Compliance & Legal</h1>
-          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">Compliance & Legal</h1>
+          <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Our commitment to transparency, digital controls, and responsible growth from Self Help stage to higher regulatory tiers
           </p>
         </div>
@@ -24,7 +24,7 @@ export default function Compliance() {
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
             <ShieldCheckIcon className="h-8 w-8 text-[#1A237E] mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">Current Compliance Status</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Current Compliance Status</h2>
           </div>
 
           <div className="prose prose-lg max-w-none">
@@ -98,7 +98,7 @@ export default function Compliance() {
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
             <ScaleIcon className="h-8 w-8 text-[#1A237E] mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">Privacy Policy</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Privacy Policy</h2>
           </div>
 
           <div className="prose prose-lg max-w-none">
@@ -163,7 +163,7 @@ export default function Compliance() {
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
             <DocumentTextIcon className="h-8 w-8 text-[#1A237E] mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">Terms of Service</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Terms of Service</h2>
           </div>
 
           <div className="prose prose-lg max-w-none">

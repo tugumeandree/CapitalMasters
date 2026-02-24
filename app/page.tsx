@@ -46,7 +46,7 @@ export default function Home() {
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-400 rounded-full blur-3xl"></div>
         </div>
         <div className="container-custom relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="space-y-6">
               {/* Logo & Tagline */}
               <div className="inline-flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 mb-4">
@@ -199,15 +199,15 @@ export default function Home() {
               <div className="text-primary-100">Years of Excellence</div>
             </div>
             <div>
-              <div className="ledger-text text-5xl font-bold mb-2">UGX 900M+</div>
+              <div className="ledger-text text-3xl sm:text-4xl md:text-5xl font-bold mb-2">UGX 900M+</div>
               <div className="text-primary-100">Assets Under Management</div>
             </div>
             <div>
-              <div className="ledger-text text-5xl font-bold mb-2">100</div>
+              <div className="ledger-text text-3xl sm:text-4xl md:text-5xl font-bold mb-2">100</div>
               <div className="text-primary-100">Satisfied Clients</div>
             </div>
             <div>
-              <div className="ledger-text text-5xl font-bold mb-2">5+</div>
+              <div className="ledger-text text-3xl sm:text-4xl md:text-5xl font-bold mb-2">5+</div>
               <div className="text-primary-100">Expert Professionals</div>
             </div>
           </div>
@@ -217,11 +217,11 @@ export default function Home() {
       {/* CTA Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="bg-[#1A237E] rounded-2xl p-12 text-center text-white border border-[#C5A021]/35">
-            <h2 className="text-4xl font-bold text-[#C5A021] mb-4">
+          <div className="bg-[#1A237E] rounded-2xl p-6 sm:p-8 md:p-12 text-center text-white border border-[#C5A021]/35">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#C5A021] mb-4">
               Join CapitalMasters And Start Investing In Coffee And Cocoa Now
             </h2>
-            <p className="text-xl text-[#F5F5F5] mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] mb-8 max-w-2xl mx-auto">
               We invest in two seasons each year: February–May and September–December. Target return is 8% monthly ROI (32% per 4-month season). Minimum investment is UGX 1M.
             </p>
             <p className="text-sm text-[#F5F5F5]/85 mb-6">

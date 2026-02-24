@@ -114,8 +114,8 @@ export default function Resources() {
       {/* Hero Section */}
       <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Investment Resources</h1>
-          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">Investment Resources</h1>
+          <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Practical resources to help members understand our coffee and cocoa strategy, governance controls, and growth roadmap
           </p>
         </div>
@@ -126,7 +126,7 @@ export default function Resources() {
         <div className="container-custom">
           <div className="flex items-center mb-8">
             <DocumentTextIcon className="h-8 w-8 text-[#1A237E] mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">Latest Articles</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Latest Articles</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
@@ -164,7 +164,7 @@ export default function Resources() {
         <div className="container-custom">
           <div className="flex items-center mb-8">
             <QuestionMarkCircleIcon className="h-8 w-8 text-[#1A237E] mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
               Frequently Asked Questions
             </h2>
           </div>
@@ -212,9 +212,9 @@ export default function Resources() {
       {/* Newsletter Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="max-w-3xl mx-auto bg-[#1A237E] rounded-2xl p-12 text-white text-center border border-[#C5A021]/35">
+          <div className="max-w-3xl mx-auto bg-[#1A237E] rounded-2xl p-6 sm:p-8 md:p-12 text-white text-center border border-[#C5A021]/35">
             <EnvelopeIcon className="h-16 w-16 mx-auto mb-6" />
-            <h2 className="text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Subscribe to Our Newsletter
             </h2>
             <p className="text-xl text-[#F5F5F5] mb-8">
@@ -255,7 +255,7 @@ export default function Resources() {
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Investment Guides & Tools
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">

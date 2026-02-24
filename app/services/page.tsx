@@ -135,8 +135,8 @@ export default function Services() {
       {/* Hero Section */}
       <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Our Investment Services</h1>
-          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">Our Investment Services</h1>
+          <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Practical, transparent services aligned with our current investment-club stage and growth roadmap
           </p>
         </div>
@@ -194,7 +194,7 @@ export default function Services() {
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Our Investment Process
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -229,7 +229,7 @@ export default function Services() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Key Investment Sectors
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -293,7 +293,7 @@ export default function Services() {
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Investment Resources
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -350,8 +350,8 @@ export default function Services() {
       {/* CTA Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="bg-[#1A237E] rounded-2xl p-12 text-center text-white border border-[#C5A021]/35">
-            <h2 className="text-4xl font-bold mb-4">
+          <div className="bg-[#1A237E] rounded-2xl p-6 sm:p-8 md:p-12 text-center text-white border border-[#C5A021]/35">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Ready to Get Started?
             </h2>
             <p className="text-xl text-[#F5F5F5] mb-8 max-w-2xl mx-auto">

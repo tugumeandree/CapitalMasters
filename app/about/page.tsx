@@ -61,8 +61,8 @@ export default function About() {
       {/* Hero Section */}
       <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">About CapitalMasters</h1>
-          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">About CapitalMasters</h1>
+          <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Building wealth through strategic investment management since January, 2025
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function About() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-lg text-gray-700 leading-relaxed">
               <p>
                 Founded in Kampala, Uganda in 2025 by Andrew Tugume, a seasoned investor, CapitalMasters emerged from a bold vision: to transform 
@@ -99,7 +99,7 @@ export default function About() {
       {/* Mission, Vision & Core Values */}
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12">
             <div className="bg-white p-8 rounded-xl shadow-md">
               <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
                 <svg className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@ export default function About() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Corporate Social Responsibility
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -237,7 +237,7 @@ export default function About() {
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Values</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Values</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               The principles that guide everything we do
             </p>
@@ -265,7 +265,7 @@ export default function About() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Meet Our Leadership Team
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -326,19 +326,19 @@ export default function About() {
         <div className="container-custom">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-5xl font-bold mb-2">2+</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">2+</div>
               <div className="text-[#F5F5F5]">Years of Excellence</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">UGX 900M+</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">UGX 900M+</div>
               <div className="text-[#F5F5F5]">Assets Under Management</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">100</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">100</div>
               <div className="text-[#F5F5F5]">Satisfied Clients</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">5+</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">5+</div>
               <div className="text-[#F5F5F5]">Expert Professionals</div>
             </div>
           </div>

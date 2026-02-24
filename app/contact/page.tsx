@@ -75,8 +75,8 @@ export default function Contact() {
       {/* Hero Section */}
       <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Contact Us</h1>
-          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">Contact Us</h1>
+          <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Get in touch with our team to discuss your investment goals
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Form */}
             <div id="contact-form">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">

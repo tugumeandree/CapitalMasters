@@ -12,6 +12,15 @@ body {
   color: var(--cm-text);
   background: var(--cm-neutral);
   font-family: var(--font-body), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
 }
 
 h1,
@@ -212,5 +221,10 @@ html {
   button, a {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  .prose {
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
 }

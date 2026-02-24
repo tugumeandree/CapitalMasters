@@ -21,7 +21,10 @@ export default function CommodityAllocationChart() {
             labelLine={false}
             outerRadius={110}
             dataKey="value"
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) => {
+              const safePercent = typeof percent === 'number' ? percent : 0;
+              return `${name}: ${(safePercent * 100).toFixed(0)}%`;
+            }}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
