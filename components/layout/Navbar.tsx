@@ -16,7 +16,7 @@ const navigation = [
   { name: 'Investor Protection', href: '/investor-protection' },
   { name: 'Compliance', href: '/compliance' },
   { name: 'Contact', href: '/contact' },
-  { name: 'Client Portal', href: '/client-portal' },
+  { name: 'Admin Portal', href: '/admin' },
 ];
 
 export default function Navbar() {
@@ -39,12 +39,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-[#1A237E] shadow-md sticky top-0 z-50 border-b border-[#C5A021]/40">
       <div className="container-custom">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Logo />
+            <Logo variant="light" />
           </div>
 
           {/* Desktop Navigation */}
@@ -56,8 +56,8 @@ export default function Navbar() {
                 href={item.href}
                 className={`${
                   isActive(item.href)
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
+                    ? 'text-[#C5A021] border-b-2 border-[#C5A021]'
+                    : 'text-white hover:text-[#C5A021]'
                 } px-3 py-2 text-sm font-medium transition-colors duration-200`}
               >
                 {item.name}
@@ -70,7 +70,7 @@ export default function Navbar() {
                   <>
                     <Link
                       href="/client-portal"
-                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                      className="bg-[#2E7D32] hover:bg-[#276A2A] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                     >
                       Client Portal
                     </Link>
@@ -84,15 +84,15 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href="/client-portal"
-                    className="text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium"
+                      className="text-white hover:text-[#C5A021] px-3 py-2 text-sm font-medium"
                   >
                     Client Portal
                   </Link>
                 )}
-                <span className="text-gray-500 text-sm">{user?.name || 'User'}</span>
+                <span className="text-[#F5F5F5] text-sm">{user?.name || 'User'}</span>
                 <button
                   onClick={handleLogout}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="bg-[#F5F5F5] hover:bg-white text-[#1A237E] px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                 >
                   Logout
                 </button>
@@ -100,7 +100,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/client-portal"
-                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                className="bg-[#2E7D32] hover:bg-[#276A2A] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               >
                 Client Login
               </Link>
@@ -112,7 +112,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-700 hover:text-primary-600 p-2"
+              className="text-white hover:text-[#C5A021] p-2"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -127,7 +127,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="md:hidden bg-[#1A237E] border-t border-[#C5A021]/40">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {/* Only show website navigation when NOT on portal pages */}
             {!isPortalPage && navigation.map((item) => (
@@ -137,8 +137,8 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`${
                   isActive(item.href)
-                    ? 'bg-primary-50 text-primary-600'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-[#C5A021]/20 text-[#C5A021]'
+                    : 'text-white hover:bg-white/10'
                 } block px-3 py-2 rounded-md text-base font-medium`}
               >
                 {item.name}
@@ -152,7 +152,7 @@ export default function Navbar() {
                     <Link
                       href="/client-portal"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                      className="block px-3 py-2 rounded-md text-base font-medium bg-[#2E7D32] text-white hover:bg-[#276A2A]"
                     >
                       Client Portal
                     </Link>
@@ -168,12 +168,12 @@ export default function Navbar() {
                   <Link
                     href="/client-portal"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10"
                   >
                     Client Portal
                   </Link>
                 )}
-                <div className="px-3 py-2 text-sm text-gray-500">
+                <div className="px-3 py-2 text-sm text-[#F5F5F5]">
                   {user?.name || 'User'}
                 </div>
                 <button
@@ -181,7 +181,7 @@ export default function Navbar() {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10"
                 >
                   Logout
                 </button>
@@ -190,7 +190,7 @@ export default function Navbar() {
               <Link
                 href="/client-portal"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                className="block px-3 py-2 rounded-md text-base font-medium bg-[#2E7D32] text-white hover:bg-[#276A2A]"
               >
                 Client Login
               </Link>

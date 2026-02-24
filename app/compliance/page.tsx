@@ -3,18 +3,18 @@ import { ShieldCheckIcon, DocumentTextIcon, ScaleIcon } from '@heroicons/react/2
 
 export const metadata: Metadata = {
   title: 'Compliance & Legal - CapitalMasters',
-  description: 'CapitalMasters compliance information, privacy policy, terms of service, and regulatory disclosures.',
+  description: 'CapitalMasters compliance information, privacy policy, terms of service, and current regulatory pathway disclosures.',
 };
 
 export default function Compliance() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-900 text-white section-padding">
+      <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold mb-6">Compliance & Legal</h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Our commitment to transparency, regulatory compliance, and protecting your interests
+          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Compliance & Legal</h1>
+          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+            Our commitment to transparency, digital controls, and responsible growth from Self Help stage to higher regulatory tiers
           </p>
         </div>
       </section>
@@ -23,77 +23,71 @@ export default function Compliance() {
       <section className="section-padding bg-white">
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
-            <ShieldCheckIcon className="h-8 w-8 text-primary-600 mr-3" />
-            <h2 className="text-4xl font-bold text-gray-900">Licensing & Registration</h2>
+            <ShieldCheckIcon className="h-8 w-8 text-[#1A237E] mr-3" />
+            <h2 className="text-4xl font-bold text-gray-900">Current Compliance Status</h2>
           </div>
 
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-700 leading-relaxed mb-4">
-              CapitalMasters is a registered investment advisor with the Securities and Exchange Commission (SEC) 
-              under the Investment Advisers Act of 1940. Our CRD number is 123456.
+              CapitalMasters currently operates as a Self Help Group (SHG) investment club and is not yet a fully licensed fund manager. Our present controls are built around transparent governance, digital transaction workflows, and regulated banking channels.
             </p>
 
-            <div className="bg-primary-50 border-l-4 border-primary-600 p-6 my-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Regulatory Bodies & Licensing</h3>
+            <div className="bg-[#F5F5F5] border-l-4 border-[#2E7D32] p-6 my-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Regulatory Pathway & Position</h3>
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start">
-                  <span className="text-primary-600 mr-2">•</span>
+                  <span className="text-[#2E7D32] mr-2">•</span>
                   <div>
-                    <strong>Securities and Exchange Commission (SEC)</strong> - Registered Investment Advisor
+                    <strong>Current Stage:</strong> Self Help Group / Investment Club
                     <br />
-                    <span className="text-sm text-gray-600">CRD Number: 123456</span>
+                    <span className="text-sm text-gray-600">Operating with internal governance, digital controls, and regulated bank channels</span>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-primary-600 mr-2">•</span>
+                  <span className="text-[#2E7D32] mr-2">•</span>
                   <div>
-                    <strong>Financial Industry Regulatory Authority (FINRA)</strong> - Member Firm
+                    <strong>Year 2 Objective:</strong> UIA License
                     <br />
-                    <span className="text-sm text-gray-600">Member ID: 78910</span>
+                    <span className="text-sm text-gray-600">Formal growth milestone in the scale-operations phase</span>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-primary-600 mr-2">•</span>
+                  <span className="text-[#2E7D32] mr-2">•</span>
                   <div>
-                    <strong>Securities Investor Protection Corporation (SIPC)</strong> - Member
+                    <strong>Year 3 Objective:</strong> SACCO Tier 4 Pathway (UMRA)
                     <br />
-                    <span className="text-sm text-gray-600">Protection up to $500,000</span>
+                    <span className="text-sm text-gray-600">Governance and capital standards for formal cooperative transition</span>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-primary-600 mr-2">•</span>
+                  <span className="text-[#2E7D32] mr-2">•</span>
                   <div>
-                    <strong>Uganda Investment Authority (UIA)</strong> - Licensed Investment Company
+                    <strong>Year 4 Objective:</strong> Pre-MDI Readiness
                     <br />
-                    <span className="text-sm text-gray-600">License No: UIA/2024/001</span>
+                    <span className="text-sm text-gray-600">Controls and audit maturity before higher-tier licensing</span>
                   </div>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-primary-600 mr-2">•</span>
+                  <span className="text-[#2E7D32] mr-2">•</span>
                   <div>
-                    <strong>Capital Markets Authority (CMA)</strong> - Regulated Entity
+                    <strong>Year 5+ Objective:</strong> CMA Fund Manager License
                     <br />
-                    <span className="text-sm text-gray-600">CMA Registration: CMA/FMD/2024/045</span>
+                    <span className="text-sm text-gray-600">Long-term licensing target as institutional capacity expands</span>
                   </div>
                 </li>
               </ul>
             </div>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 my-8">
-              <h4 className="font-bold text-gray-900 mb-3">Regulatory Compliance Statement</h4>
+              <h4 className="font-bold text-gray-900 mb-3">Compliance Statement</h4>
               <p className="text-gray-700 text-sm leading-relaxed">
-                CapitalMasters is fully licensed and authorized to operate as an investment management firm 
-                under the regulatory oversight of the Uganda Investment Authority (UIA) and Capital Markets 
-                Authority (CMA). We adhere to all applicable laws, regulations, and industry standards to 
-                ensure the highest level of investor protection and operational integrity. Our compliance 
-                program is regularly audited by independent third parties to maintain transparency and accountability.
+                CapitalMasters does not currently represent itself as a fully licensed fund manager. We operate with transparent internal governance and digital controls while progressing through our regulatory roadmap. All member funds are handled through regulated banking channels and documented workflows to protect investor interests.
               </p>
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Professional Credentials</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Operational Controls</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Our investment professionals hold various industry certifications including CFA (Chartered Financial Analyst), 
-              CFP (Certified Financial Planner), and CAIA (Chartered Alternative Investment Analyst) designations.
+              Our compliance controls include KYC onboarding, dual-approval transactions, digital recordkeeping, periodic reconciliation, and scheduled governance reviews. These controls are designed to protect principal and support our minimum 8% ROI objective.
             </p>
           </div>
         </div>
@@ -103,7 +97,7 @@ export default function Compliance() {
       <section id="privacy" className="section-padding bg-gray-50">
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
-            <ScaleIcon className="h-8 w-8 text-primary-600 mr-3" />
+            <ScaleIcon className="h-8 w-8 text-[#1A237E] mr-3" />
             <h2 className="text-4xl font-bold text-gray-900">Privacy Policy</h2>
           </div>
 
@@ -126,7 +120,7 @@ export default function Compliance() {
               We use your information to:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
-              <li>Provide investment advisory services and portfolio management</li>
+              <li>Provide investment-club services and portfolio operations</li>
               <li>Process transactions and maintain your account</li>
               <li>Comply with legal and regulatory requirements</li>
               <li>Communicate with you about your account and our services</li>
@@ -168,7 +162,7 @@ export default function Compliance() {
       <section id="terms" className="section-padding bg-white">
         <div className="container-custom max-w-5xl">
           <div className="flex items-center mb-8">
-            <DocumentTextIcon className="h-8 w-8 text-primary-600 mr-3" />
+            <DocumentTextIcon className="h-8 w-8 text-[#1A237E] mr-3" />
             <h2 className="text-4xl font-bold text-gray-900">Terms of Service</h2>
           </div>
 
@@ -177,8 +171,7 @@ export default function Compliance() {
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Investment Advisory Agreement</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              By engaging CapitalMasters for investment advisory services, you agree to the terms outlined in your 
-              Investment Advisory Agreement. This agreement specifies the scope of services, fee structure, and terms of engagement.
+              By participating with CapitalMasters, you agree to the documented member terms that define contribution requirements, service scope, fee framework, governance rules, and reporting expectations.
             </p>
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Investment Risk Disclosure</h3>
@@ -192,17 +185,15 @@ export default function Compliance() {
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>• Market risk: Investment values fluctuate with market conditions</li>
                 <li>• Liquidity risk: Some investments may be difficult to sell quickly</li>
-                <li>• Interest rate risk: Bond values decrease when interest rates rise</li>
-                <li>• Currency risk: International investments subject to exchange rate fluctuations</li>
-                <li>• Credit risk: Possibility of issuer default or credit downgrade</li>
+                <li>• Commodity price risk: Coffee and cocoa prices can move materially</li>
+                <li>• Operational risk: Delays or execution gaps can affect outcomes</li>
+                <li>• Counterparty risk: Buyers/suppliers may underperform contractual obligations</li>
               </ul>
             </div>
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Fee Structure</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Our advisory fees are based on assets under management and are detailed in your Investment Advisory Agreement. 
-              Fees are typically charged quarterly in advance and may be tax-deductible. Additional expenses may include 
-              custodial fees, transaction costs, and fund expenses.
+              Our fee and cost structure is disclosed transparently to members before participation. Any applicable operational costs are documented and reported through our digital workflow.
             </p>
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Client Responsibilities</h3>
@@ -218,29 +209,27 @@ export default function Compliance() {
 
             <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Termination</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Either party may terminate the advisory relationship with written notice. Upon termination, 
-              fees will be prorated to the date of termination, and any unearned fees will be refunded.
+              Either party may terminate participation subject to the agreed terms and active investment cycle conditions. Any applicable settlement process is documented transparently.
             </p>
 
-            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Arbitration</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Dispute Resolution</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Disputes may be subject to arbitration in accordance with the rules of FINRA or another 
-              agreed-upon arbitration forum, as specified in your Investment Advisory Agreement.
+              Disputes are handled using the dispute-resolution process defined in member terms and applicable local legal frameworks.
             </p>
           </div>
         </div>
       </section>
 
       {/* Contact for Questions */}
-      <section className="section-padding bg-primary-600 text-white">
+      <section className="section-padding bg-[#2E7D32] text-white">
         <div className="container-custom text-center">
           <h2 className="text-3xl font-bold mb-4">Questions About Compliance?</h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Our compliance team is available to answer any questions about our regulatory obligations and your rights.
+          <p className="text-xl text-[#F5F5F5] mb-8 max-w-2xl mx-auto">
+            Our team is available to explain our current controls, regulatory pathway, and your rights as a member or client.
           </p>
           <a
             href="/contact"
-            className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors duration-200"
+            className="inline-block bg-white text-[#1A237E] px-8 py-4 rounded-lg font-semibold hover:bg-[#F5F5F5] transition-colors duration-200"
           >
             Contact Compliance Team
           </a>

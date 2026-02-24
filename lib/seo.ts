@@ -1,15 +1,23 @@
 // Utility functions for SEO optimization
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://capitalmasters.com';
+
 export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'FinancialService',
     name: 'CapitalMasters',
-    description: 'Professional investment management and wealth advisory services',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://capitalmasters.com',
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
-    telephone: '+1-555-123-4567',
+    description: 'Investment club focused on coffee and cocoa with disciplined governance and digital compliance controls.',
+    url: baseUrl,
+    logo: `${baseUrl}/logo.png`,
+    telephone: '+256755017384',
     email: 'info@capitalmasters.com',
+    founder: {
+      '@type': 'Person',
+      name: 'Andrew Tugume',
+      jobTitle: 'Founder & Chief Investor',
+      description: 'Founder of CapitalMasters and seasoned investor.',
+    },
     address: {
       '@type': 'PostalAddress',
       streetAddress: '5 Kiwana Road',
@@ -66,7 +74,7 @@ export function generateServiceSchema(service: {
     provider: {
       '@type': 'FinancialService',
       name: 'CapitalMasters',
-      url: process.env.NEXT_PUBLIC_SITE_URL,
+      url: baseUrl,
     },
     url: service.url,
   };
@@ -93,11 +101,11 @@ export function generateContactSchema() {
     '@type': 'ContactPage',
     name: 'Contact CapitalMasters',
     description: 'Get in touch with our investment advisory team',
-    url: `${process.env.NEXT_PUBLIC_SITE_URL}/contact`,
+    url: `${baseUrl}/contact`,
     mainEntity: {
       '@type': 'FinancialService',
       name: 'CapitalMasters',
-      telephone: '+1-555-123-4567',
+      telephone: '+256755017384',
       email: 'info@capitalmasters.com',
     },
   };

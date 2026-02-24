@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Metadata } from 'next';
 import Link from 'next/link';
 import {
   ChartBarIcon,
@@ -87,7 +86,7 @@ export default function Portfolio() {
     return (
       <div className="w-full min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#2E7D32] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading portfolio data...</p>
         </div>
       </div>
@@ -115,29 +114,28 @@ export default function Portfolio() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-900 text-white section-padding">
+      <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom">
           <div className="max-w-4xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">Investment Portfolio</h1>
-            <p className="text-base sm:text-lg md:text-xl text-primary-100 mb-8">
-              Discover how CapitalMasters is channeling global capital into Africa's most promising 
-              investment opportunities, driving sustainable growth and transforming economies across the continent.
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C5A021] mb-6">Investment Portfolio</h1>
+            <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5] mb-8">
+              View our current portfolio focused on coffee and cocoa investments, supported by disciplined treasury allocation and transparent digital reporting.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4">
-                <p className="text-primary-200 text-xs sm:text-sm mb-1">Assets Under Management</p>
-                <p className="text-2xl sm:text-3xl font-bold">${(overview.totalAUM / 1000000000).toFixed(1)}B</p>
+                <p className="text-[#F5F5F5]/80 text-xs sm:text-sm mb-1">Assets Under Management</p>
+                <p className="text-2xl sm:text-3xl font-bold">UGX {(overview.totalAUM / 1000000).toFixed(0)}M</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <p className="text-primary-200 text-sm mb-1">Active Investments</p>
+                <p className="text-[#F5F5F5]/80 text-sm mb-1">Active Investments</p>
                 <p className="text-3xl font-bold">{overview.numberOfInvestments}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <p className="text-primary-200 text-sm mb-1">Average Return</p>
+                <p className="text-[#F5F5F5]/80 text-sm mb-1">Average Return</p>
                 <p className="text-3xl font-bold">{overview.averageReturn}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <p className="text-primary-200 text-sm mb-1">Risk Profile</p>
+                <p className="text-[#F5F5F5]/80 text-sm mb-1">Risk Profile</p>
                 <p className="text-3xl font-bold">{overview.riskProfile}</p>
               </div>
             </div>
@@ -153,7 +151,7 @@ export default function Portfolio() {
             <div className="space-y-4">
               {objectives.map((objective, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 bg-[#2E7D32] text-white rounded-full flex items-center justify-center font-bold">
                     {index + 1}
                   </div>
                   <p className="text-lg text-gray-700 pt-1">{objective}</p>
@@ -169,7 +167,7 @@ export default function Portfolio() {
         <div className="container-custom">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center mb-6">
-              <ChartBarIcon className="h-10 w-10 text-primary-600 mr-4" />
+              <ChartBarIcon className="h-10 w-10 text-[#1A237E] mr-4" />
               <h2 className="text-4xl font-bold text-gray-900">Investment Strategy</h2>
             </div>
             <p className="text-lg text-gray-700 leading-relaxed">{strategy}</p>
@@ -186,7 +184,7 @@ export default function Portfolio() {
               <div key={assetClass.id} className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-gray-900">{assetClass.name}</h3>
-                  <span className="text-3xl font-bold text-primary-600">{assetClass.allocation}%</span>
+                  <span className="text-3xl font-bold text-[#1A237E]">{assetClass.allocation}%</span>
                 </div>
                 <p className="text-gray-700 mb-4">{assetClass.description}</p>
                 <div className="flex items-center justify-between text-sm">
@@ -211,7 +209,7 @@ export default function Portfolio() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-8 md:mb-12 text-center">Portfolio Performance</h2>
           <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-md">
             <p className="text-gray-600 mb-6 text-center">
-              Historical performance vs. benchmark index (2020-2025)
+              Performance trend since launch in 2025
             </p>
             <PortfolioPerformanceChart data={performanceHistory} />
           </div>
@@ -240,19 +238,19 @@ export default function Portfolio() {
         <div className="container-custom">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">Featured Investments</h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 md:mb-12 text-center max-w-3xl mx-auto">
-            Strategic investments driving Africa's economic transformation and delivering sustainable returns
+            Current active investments aligned with our coffee, cocoa, and treasury-focused strategy
           </p>
           <div className="grid gap-6 md:gap-8">
             {keyInvestments.map((investment) => (
               <div key={investment.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="bg-gradient-to-r from-primary-600 to-primary-800 p-6">
+                <div className="bg-gradient-to-r from-[#2E7D32] to-[#1A237E] p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-2xl font-bold text-white">{investment.name}</h3>
-                    <span className="bg-white text-primary-600 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span className="bg-white text-[#1A237E] px-3 py-1 rounded-full text-sm font-semibold">
                       {investment.status}
                     </span>
                   </div>
-                  <p className="text-primary-100">{investment.sector}</p>
+                  <p className="text-[#F5F5F5]">{investment.sector}</p>
                 </div>
                 <div className="p-6">
                   <p className="text-gray-700 mb-4">{investment.description}</p>
@@ -260,7 +258,7 @@ export default function Portfolio() {
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-gray-500">Investment Amount</p>
-                      <p className="font-bold text-gray-900">${(investment.amount / 1000000).toFixed(1)}M</p>
+                      <p className="font-bold text-gray-900">UGX {(investment.amount / 1000000).toFixed(1)}M</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Expected Return</p>
@@ -295,41 +293,41 @@ export default function Portfolio() {
       </section>
 
       {/* Investor Benefits */}
-      <section className="section-padding bg-primary-600 text-white">
+      <section className="section-padding bg-[#2E7D32] text-white">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">Investor Benefits</h2>
-            <p className="text-base sm:text-lg md:text-xl text-primary-100">
-              Join our community of global investors building Africa's future
+            <p className="text-base sm:text-lg md:text-xl text-[#F5F5F5]">
+              Join a transparent investment club with disciplined controls and clear return objectives
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center">
               <ArrowTrendingUpIcon className="h-12 w-12 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-3">Superior Returns</h3>
-              <p className="text-primary-100">
-                Access to high-growth African markets with proven track record of outperforming benchmarks
+              <h3 className="text-xl font-bold mb-3">8% Minimum ROI Objective</h3>
+              <p className="text-[#F5F5F5]">
+                Capital is deployed with controls designed to sustain our minimum 8% return objective.
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center">
               <ShieldCheckIcon className="h-12 w-12 mx-auto mb-4" />
               <h3 className="text-xl font-bold mb-3">Transparent Reporting</h3>
-              <p className="text-primary-100">
-                Quarterly performance reports, annual audits, and 24/7 access to your portfolio dashboard
+              <p className="text-[#F5F5F5]">
+                Digital transaction records, periodic updates, and member-first disclosure standards.
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center">
               <BuildingOfficeIcon className="h-12 w-12 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-3">Exclusive Opportunities</h3>
-              <p className="text-primary-100">
-                Early access to pre-IPO investments and private deals across Africa's fastest-growing sectors
+              <h3 className="text-xl font-bold mb-3">Commodity Focus</h3>
+              <p className="text-[#F5F5F5]">
+                Active positions in coffee and cocoa, supported by treasury allocation for stability.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/contact" className="btn-secondary bg-white text-primary-600 hover:bg-gray-100 inline-flex items-center">
+            <Link href="/contact" className="btn-secondary bg-white text-[#1A237E] hover:bg-gray-100 inline-flex items-center">
               Start Investing
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>

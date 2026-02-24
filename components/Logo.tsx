@@ -1,6 +1,13 @@
 import Link from 'next/link';
 
-export default function Logo({ className = '' }: { className?: string }) {
+type LogoProps = {
+  className?: string;
+  variant?: 'light' | 'dark';
+};
+
+export default function Logo({ className = '', variant = 'dark' }: LogoProps) {
+  const isLight = variant === 'light';
+
   return (
     <Link href="/" className={`flex items-center space-x-2 ${className}`}>
       <div className="relative">
@@ -11,7 +18,7 @@ export default function Logo({ className = '' }: { className?: string }) {
           viewBox="0 0 40 40"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-primary-600"
+          className={isLight ? 'text-[#C5A021]' : 'text-primary-600'}
         >
           {/* Outer Circle */}
           <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="3" fill="none" />
@@ -34,10 +41,10 @@ export default function Logo({ className = '' }: { className?: string }) {
         </svg>
       </div>
       <div className="flex flex-col">
-        <span className="text-xl font-bold text-gray-900 leading-tight">
+        <span className={`text-xl font-bold leading-tight ${isLight ? 'text-white' : 'text-gray-900'}`}>
           CapitalMasters
         </span>
-        <span className="text-xs text-gray-600 leading-tight">
+        <span className={`text-xs leading-tight ${isLight ? 'text-[#F5F5F5]' : 'text-gray-600'}`}>
           Investment Excellence
         </span>
       </div>

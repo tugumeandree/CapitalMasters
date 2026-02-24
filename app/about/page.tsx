@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
 import { UserIcon, ChartBarIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 export const metadata: Metadata = {
@@ -9,28 +8,32 @@ export const metadata: Metadata = {
 
 const team = [
   {
-    name: 'David Mukasa',
-    role: 'Chief Executive Officer',
-    bio: 'Over 25 years of experience in African investment markets and financial services, with deep expertise in continental economic development.',
+    name: 'Andrew Tugume',
+    role: 'Founder & Chief Investor',
+    bio: 'Over 10 years of experience in African investment markets and financial services, with deep expertise in continental economic development.',
     expertise: ['Strategic Planning', 'African Markets', 'Corporate Finance'],
+    image: 'https://res.cloudinary.com/dwa3soopc/image/upload/v1763046801/Andrew%20Bio%20Photos/ILSZ9487_buwmuh.jpg',
   },
   {
-    name: 'Amina Okonkwo',
+    name: 'Priscilla Noowe Bkazi',
     role: 'Chief Investment Officer',
     bio: 'Expert in African portfolio management with a proven track record of delivering consistent returns across emerging markets.',
-    expertise: ['Portfolio Management', 'Asset Allocation', 'Market Analysis'],
+    expertise: ['Banking', 'Portfolio Management', 'Asset Allocation', 'Market Analysis'],
+    image: null,
   },
   {
-    name: 'Kwame Mensah',
+    name: 'Bataringaya Ronald',
     role: 'Head of Research',
-    bio: 'PhD in Economics from Oxford with extensive experience in African market analysis and continental economic forecasting.',
+    bio: 'Extensive experience in African market analysis and continental economic forecasting.',
     expertise: ['Quantitative Analysis', 'Market Research', 'Economic Forecasting'],
+    image: null,
   },
   {
-    name: 'Fatima Nkrumah',
+    name: 'Rechel Aine',
     role: 'Head of Client Relations',
     bio: 'Dedicated to ensuring exceptional client service and building long-term partnerships with investors worldwide.',
     expertise: ['Client Management', 'Financial Planning', 'Wealth Advisory'],
+    image: null,
   },
 ];
 
@@ -56,11 +59,11 @@ export default function About() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-900 text-white section-padding">
+      <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold mb-6">About CapitalMasters</h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Building wealth through strategic investment management since 2008
+          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">About CapitalMasters</h1>
+          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+            Building wealth through strategic investment management since January, 2025
           </p>
         </div>
       </section>
@@ -72,19 +75,19 @@ export default function About() {
             <h2 className="text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-lg text-gray-700 leading-relaxed">
               <p>
-                Founded in Kampala, Uganda in 2008, CapitalMasters emerged from a bold vision: to transform 
+                Founded in Kampala, Uganda in 2025 by Andrew Tugume, a seasoned investor, CapitalMasters emerged from a bold vision: to transform 
                 Africa's economic landscape through disciplined, research-driven investment strategies. 
                 We recognized that Africa's greatest untapped resource is its investment potential, and we set 
                 out to channel global capital toward sustainable continental development.
               </p>
               <p>
                 What started as a Ugandan investment firm has grown into a Pan-African financial powerhouse, 
-                serving over 5,000 investors from around the world who share our belief in Africa's economic 
+                serving over 100 investors from around the world who share our belief in Africa's economic 
                 future. Our success is rooted in our deep understanding of African markets, unwavering 
                 commitment to transparency, and dedication to creating lasting prosperity across the continent.
               </p>
               <p>
-                Today, we manage over $2.5 billion in assets strategically deployed across African markets 
+                Today, we manage over UGX 900 million in assets strategically deployed across African markets 
                 and global opportunities, combining local expertise with international best practices to 
                 deliver superior returns while advancing Africa's economic transformation.
               </p>
@@ -273,10 +276,19 @@ export default function About() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member) => (
               <div key={member.name} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                {/* Placeholder for team member image */}
-                <div className="bg-gradient-to-br from-primary-400 to-primary-600 h-64 flex items-center justify-center">
-                  <UserIcon className="h-32 w-32 text-white opacity-50" />
-                </div>
+                {member.image ? (
+                  <div className="h-64 overflow-hidden">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-primary-400 to-primary-600 h-64 flex items-center justify-center">
+                    <UserIcon className="h-32 w-32 text-white opacity-50" />
+                  </div>
+                )}
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-1">
                     {member.name}
@@ -310,24 +322,24 @@ export default function About() {
       </section>
 
       {/* Stats Section */}
-      <section className="section-padding bg-primary-600 text-white">
+      <section className="section-padding bg-[#2E7D32] text-white">
         <div className="container-custom">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-5xl font-bold mb-2">15+</div>
-              <div className="text-primary-100">Years of Excellence</div>
+              <div className="text-5xl font-bold mb-2">2+</div>
+              <div className="text-[#F5F5F5]">Years of Excellence</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">$2.5B+</div>
-              <div className="text-primary-100">Assets Under Management</div>
+              <div className="text-5xl font-bold mb-2">UGX 900M+</div>
+              <div className="text-[#F5F5F5]">Assets Under Management</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">5,000+</div>
-              <div className="text-primary-100">Satisfied Clients</div>
+              <div className="text-5xl font-bold mb-2">100</div>
+              <div className="text-[#F5F5F5]">Satisfied Clients</div>
             </div>
             <div>
-              <div className="text-5xl font-bold mb-2">50+</div>
-              <div className="text-primary-100">Expert Professionals</div>
+              <div className="text-5xl font-bold mb-2">5+</div>
+              <div className="text-[#F5F5F5]">Expert Professionals</div>
             </div>
           </div>
         </div>

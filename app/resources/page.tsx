@@ -12,33 +12,33 @@ import { generateFAQSchema } from '@/lib/seo';
 const articles = [
   {
     id: 1,
-    title: 'Understanding Market Volatility',
+    title: 'Coffee Market Cycle Basics',
     category: 'Market Insights',
-    excerpt: 'Learn how to navigate market fluctuations and maintain a steady investment strategy.',
+    excerpt: 'Understand coffee price cycles and how disciplined timing supports capital protection.',
     date: 'November 15, 2025',
     readTime: '5 min read',
   },
   {
     id: 2,
-    title: 'Diversification Strategies for 2025',
+    title: 'Cocoa Investment Risk Controls',
     category: 'Investment Strategy',
-    excerpt: 'Explore effective diversification techniques to optimize your portfolio performance.',
+    excerpt: 'Learn practical controls we use to manage cocoa exposure and protect member capital.',
     date: 'November 10, 2025',
     readTime: '7 min read',
   },
   {
     id: 3,
-    title: 'Tax-Efficient Investing Guide',
+    title: 'Digital Compliance Workflow',
     category: 'Tax Planning',
-    excerpt: 'Maximize your after-tax returns with smart investment strategies and planning.',
+    excerpt: 'How KYC, dual approvals, and digital records are used in our daily operations.',
     date: 'November 5, 2025',
     readTime: '6 min read',
   },
   {
     id: 4,
-    title: 'Retirement Planning Essentials',
-    category: 'Retirement',
-    excerpt: 'Key considerations for building a secure retirement portfolio at any age.',
+    title: 'From SHG to SACCO: Growth Pathway',
+    category: 'Growth Roadmap',
+    excerpt: 'A practical overview of our transition plan from investment club to licensed institutions.',
     date: 'October 28, 2025',
     readTime: '8 min read',
   },
@@ -47,27 +47,27 @@ const articles = [
 const faqs = [
   {
     question: 'What is the minimum investment required?',
-    answer: 'Our minimum investment requirement varies by service. For individual portfolio management, the minimum is typically $250,000. However, we offer various investment solutions to accommodate different investment levels.',
+    answer: 'Our current minimum contribution is UGX 1M per participating member under our investment-club model.',
   },
   {
     question: 'What fees do you charge?',
-    answer: 'Our fee structure is transparent and competitive. We typically charge an annual management fee based on assets under management, ranging from 0.75% to 1.25%. There are no hidden fees or commissions.',
+    answer: 'We use a transparent fee and cost structure communicated clearly to members before participation. There are no hidden charges.',
   },
   {
     question: 'How often will I receive portfolio updates?',
-    answer: 'Clients receive quarterly performance reports and account statements. Additionally, you have 24/7 access to your portfolio through our secure client portal, and your dedicated advisor is available for consultations at any time.',
+    answer: 'Members receive periodic performance and compliance updates through our digital workflow, including transaction records and portfolio summaries.',
   },
   {
     question: 'What is your investment philosophy?',
-    answer: 'We believe in a disciplined, research-driven approach to investing. Our strategy focuses on diversification, risk management, and long-term value creation. We combine fundamental analysis with quantitative techniques to identify opportunities.',
+    answer: 'Our current strategy focuses on disciplined commodity investing in coffee and cocoa, supported by treasury allocation, risk controls, and transparent governance.',
   },
   {
     question: 'Are my investments insured?',
-    answer: 'While investments themselves are subject to market risk and are not FDIC insured, your account is protected by SIPC (Securities Investor Protection Corporation) up to $500,000. We also maintain additional insurance coverage for client protection.',
+    answer: 'Investments carry market risk, but pooled funds are managed through regulated bank channels with digital controls, approvals, and reconciliation processes to protect capital.',
   },
   {
     question: 'Can I access my funds at any time?',
-    answer: 'Yes, your investments remain liquid and you can access your funds at any time. However, we recommend maintaining a long-term investment horizon for optimal results. Some investment vehicles may have specific liquidity terms.',
+    answer: 'Access depends on the active investment cycle and agreed participation terms. We communicate liquidity windows and timelines clearly before deployment.',
   },
 ];
 
@@ -112,11 +112,11 @@ export default function Resources() {
       />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-900 text-white section-padding">
+      <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold mb-6">Investment Resources</h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Educational content, insights, and tools to help you make informed investment decisions
+          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Investment Resources</h1>
+          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
+            Practical resources to help members understand our coffee and cocoa strategy, governance controls, and growth roadmap
           </p>
         </div>
       </section>
@@ -125,7 +125,7 @@ export default function Resources() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="flex items-center mb-8">
-            <DocumentTextIcon className="h-8 w-8 text-primary-600 mr-3" />
+            <DocumentTextIcon className="h-8 w-8 text-[#1A237E] mr-3" />
             <h2 className="text-4xl font-bold text-gray-900">Latest Articles</h2>
           </div>
 
@@ -136,7 +136,7 @@ export default function Resources() {
                 className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="mb-4">
-                  <span className="inline-block bg-primary-100 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  <span className="inline-block bg-[#F5F5F5] text-[#1A237E] text-xs font-semibold px-3 py-1 rounded-full">
                     {article.category}
                   </span>
                 </div>
@@ -150,7 +150,7 @@ export default function Resources() {
                   <span>{article.date}</span>
                   <span>{article.readTime}</span>
                 </div>
-                <button className="mt-4 text-primary-600 font-semibold hover:text-primary-700">
+                <button className="mt-4 text-[#2E7D32] font-semibold hover:text-[#276A2A]">
                   Read More →
                 </button>
               </article>
@@ -163,7 +163,7 @@ export default function Resources() {
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
           <div className="flex items-center mb-8">
-            <QuestionMarkCircleIcon className="h-8 w-8 text-primary-600 mr-3" />
+            <QuestionMarkCircleIcon className="h-8 w-8 text-[#1A237E] mr-3" />
             <h2 className="text-4xl font-bold text-gray-900">
               Frequently Asked Questions
             </h2>
@@ -183,7 +183,7 @@ export default function Resources() {
                     {faq.question}
                   </span>
                   <svg
-                    className={`h-6 w-6 text-primary-600 flex-shrink-0 transform transition-transform ${
+                    className={`h-6 w-6 text-[#2E7D32] flex-shrink-0 transform transition-transform ${
                       expandedFaq === index ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -212,13 +212,13 @@ export default function Resources() {
       {/* Newsletter Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="max-w-3xl mx-auto bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-12 text-white text-center">
+          <div className="max-w-3xl mx-auto bg-[#1A237E] rounded-2xl p-12 text-white text-center border border-[#C5A021]/35">
             <EnvelopeIcon className="h-16 w-16 mx-auto mb-6" />
             <h2 className="text-4xl font-bold mb-4">
               Subscribe to Our Newsletter
             </h2>
-            <p className="text-xl text-primary-100 mb-8">
-              Get the latest market insights, investment tips, and exclusive content delivered to your inbox.
+            <p className="text-xl text-[#F5F5F5] mb-8">
+              Get updates on commodity opportunities, compliance milestones, and portfolio insights.
             </p>
 
             {subscribed ? (
@@ -241,7 +241,7 @@ export default function Resources() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors duration-200 disabled:opacity-50"
+                  className="bg-white text-[#1A237E] px-8 py-3 rounded-lg font-semibold hover:bg-[#F5F5F5] transition-colors duration-200 disabled:opacity-50"
                 >
                   {loading ? 'Subscribing...' : 'Subscribe'}
                 </button>
@@ -265,46 +265,46 @@ export default function Resources() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-white p-6 rounded-xl shadow-md text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <DocumentTextIcon className="h-8 w-8 text-primary-600" />
+              <div className="bg-[#F5F5F5] w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <DocumentTextIcon className="h-8 w-8 text-[#1A237E]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Investment Guide 2025
+                Commodity Investment Guide 2026
               </h3>
               <p className="text-gray-600 mb-4 text-sm">
-                Complete guide to building a diversified portfolio
+                Practical guide to coffee and cocoa investment strategy
               </p>
-              <button className="text-primary-600 font-semibold hover:text-primary-700">
+              <button className="text-[#2E7D32] font-semibold hover:text-[#276A2A]">
                 Download PDF
               </button>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-md text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <DocumentTextIcon className="h-8 w-8 text-primary-600" />
+              <div className="bg-[#F5F5F5] w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <DocumentTextIcon className="h-8 w-8 text-[#1A237E]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Retirement Calculator
+                Compliance Checklist
               </h3>
               <p className="text-gray-600 mb-4 text-sm">
-                Plan your retirement with our interactive tool
+                Step-by-step controls for KYC, approvals, and reporting
               </p>
-              <button className="text-primary-600 font-semibold hover:text-primary-700">
+              <button className="text-[#2E7D32] font-semibold hover:text-[#276A2A]">
                 Access Tool
               </button>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-md text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <DocumentTextIcon className="h-8 w-8 text-primary-600" />
+              <div className="bg-[#F5F5F5] w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <DocumentTextIcon className="h-8 w-8 text-[#1A237E]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Market Outlook Report
+                Portfolio Progress Report
               </h3>
               <p className="text-gray-600 mb-4 text-sm">
-                Quarterly analysis and investment outlook
+                Current performance summary and roadmap milestones
               </p>
-              <button className="text-primary-600 font-semibold hover:text-primary-700">
+              <button className="text-[#2E7D32] font-semibold hover:text-[#276A2A]">
                 Download PDF
               </button>
             </div>

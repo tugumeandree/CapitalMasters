@@ -73,10 +73,10 @@ export default function Contact() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-900 text-white section-padding">
+      <section className="bg-[#1A237E] text-white section-padding">
         <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold mb-6">Contact Us</h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold text-[#C5A021] mb-6">Contact Us</h1>
+          <p className="text-xl text-[#F5F5F5] max-w-3xl mx-auto">
             Get in touch with our team to discuss your investment goals
           </p>
         </div>
@@ -85,11 +85,34 @@ export default function Contact() {
       {/* Contact Content */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          <div className="mb-10 bg-[#F5F5F5] border border-[#2E7D32]/30 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Quickest Way To Reach Us</h2>
+            <p className="text-gray-700 mb-4">
+              Please contact us in this order: <strong>WhatsApp</strong>, then <strong>Call</strong>, then <strong>Email</strong>. The website form is a last resort.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="https://wa.me/256755017384?text=Hello%20CapitalMasters%2C%20I%20want%20to%20invest%20in%20coffee%20and%20cocoa."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+              >
+                WhatsApp
+              </a>
+              <a href="tel:+256755017384" className="btn-outline">
+                Call +256 755017384
+              </a>
+              <a href="mailto:info@capitalmasters.com" className="btn-outline">
+                Email info@capitalmasters.com
+              </a>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div>
+            <div id="contact-form">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Send Us a Message
+                Contact Form (Last Resort)
               </h2>
 
               {submitted ? (
@@ -115,7 +138,7 @@ export default function Contact() {
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="text-primary-600 font-semibold hover:text-primary-700"
+                    className="text-[#2E7D32] font-semibold hover:text-[#276A2A]"
                   >
                     Send Another Message
                   </button>
@@ -228,7 +251,7 @@ export default function Contact() {
 
                   <p className="text-sm text-gray-500 text-center">
                     By submitting this form, you agree to our{' '}
-                    <a href="/compliance#privacy" className="text-primary-600 hover:underline">
+                    <a href="/compliance#privacy" className="text-[#2E7D32] hover:underline">
                       Privacy Policy
                     </a>
                   </p>
@@ -247,7 +270,7 @@ export default function Contact() {
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     <div className="bg-primary-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                      <MapPinIcon className="h-6 w-6 text-primary-600" />
+                      <MapPinIcon className="h-6 w-6 text-[#1A237E]" />
                     </div>
                   </div>
                   <div>
@@ -266,7 +289,7 @@ export default function Contact() {
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     <div className="bg-primary-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                      <PhoneIcon className="h-6 w-6 text-primary-600" />
+                      <PhoneIcon className="h-6 w-6 text-[#1A237E]" />
                     </div>
                   </div>
                   <div>
@@ -275,8 +298,7 @@ export default function Contact() {
                     </h3>
                     <p className="text-gray-600">
                       Main: +256 755017384<br />
-                      Toll Free: 1-800-CAPITAL<br />
-                      Fax: +1 (555) 123-4568
+                      WhatsApp: +256 755017384
                     </p>
                   </div>
                 </div>
@@ -285,7 +307,7 @@ export default function Contact() {
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     <div className="bg-primary-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                      <EnvelopeIcon className="h-6 w-6 text-primary-600" />
+                      <EnvelopeIcon className="h-6 w-6 text-[#1A237E]" />
                     </div>
                   </div>
                   <div>
@@ -295,7 +317,7 @@ export default function Contact() {
                     <p className="text-gray-600">
                       General: info@capitalmasters.com<br />
                       New Clients: newclients@capitalmasters.com<br />
-                      Support: support@capitalmasters.com
+                      Support: info@capitalmasters.com
                     </p>
                   </div>
                 </div>
@@ -304,7 +326,7 @@ export default function Contact() {
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     <div className="bg-primary-100 w-12 h-12 rounded-lg flex items-center justify-center">
-                      <ClockIcon className="h-6 w-6 text-primary-600" />
+                      <ClockIcon className="h-6 w-6 text-[#1A237E]" />
                     </div>
                   </div>
                   <div>
@@ -312,8 +334,8 @@ export default function Contact() {
                       Business Hours
                     </h3>
                     <p className="text-gray-600">
-                      Monday - Friday: 8:00 AM - 6:00 PM EST<br />
-                      Saturday: 9:00 AM - 1:00 PM EST<br />
+                      Monday - Friday: 8:00 AM - 6:00 PM EAT<br />
+                      Saturday: 9:00 AM - 1:00 PM EAT<br />
                       Sunday: Closed
                     </p>
                   </div>
