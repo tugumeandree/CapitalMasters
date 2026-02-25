@@ -62,6 +62,7 @@ export default function ClientPortal() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -569,6 +570,64 @@ export default function ClientPortal() {
               </div>
             </div>
 
+            {/* Shareholding Card */}
+            <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg p-6 mb-8 text-white">
+              <h3 className="text-xl font-bold mb-6">Your Fund Shareholding</h3>
+              
+              {(() => {
+                const maxFund = 1000000000; // 1 billion UGX
+                const contributions = dashboardData.transactions.filter(t => 
+                  ['deposit', 'investment', 'loan_given'].includes(t.type)
+                );
+                const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
+                const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
+                const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                const netInvested = totalContributions - totalWithdrawals;
+                const sharePercentage = (netInvested / maxFund) * 100;
+                const remainingCapacity = maxFund - netInvested;
+                
+                return (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <p className="text-indigo-100 text-sm font-medium mb-2">Your Investment</p>
+                        <p className="text-2xl sm:text-3xl font-bold">UGX {formatPrimaryAndSecondary(netInvested).primary}</p>
+                        <p className="text-xs text-indigo-200 mt-1">{formatPrimaryAndSecondary(netInvested).secondary}</p>
+                      </div>
+                      
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <p className="text-indigo-100 text-sm font-medium mb-2">Your Share %</p>
+                        <p className="text-2xl sm:text-3xl font-bold">{sharePercentage.toFixed(4)}%</p>
+                        <p className="text-xs text-indigo-200 mt-1">of the 1B fund</p>
+                      </div>
+                      
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <p className="text-indigo-100 text-sm font-medium mb-2">Max Fund</p>
+                        <p className="text-2xl sm:text-3xl font-bold">UGX {formatPrimaryAndSecondary(maxFund).primary}</p>
+                        <p className="text-xs text-indigo-200 mt-1">{formatPrimaryAndSecondary(maxFund).secondary}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <p className="text-indigo-100 font-medium">Fund Capacity Usage</p>
+                        <p className="text-indigo-100 font-bold">{sharePercentage.toFixed(2)}%</p>
+                      </div>
+                      <div className="w-full bg-white/20 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(sharePercentage, 100)}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-indigo-200 mt-2">
+                        Remaining capacity: UGX {formatPrimaryAndSecondary(remainingCapacity).primary}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
             {/* Investment Terms & Options Notice */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-8">
               <div className="flex items-start gap-4">
@@ -623,9 +682,43 @@ export default function ClientPortal() {
                         <svg className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-semibold text-amber-900 mb-1">Contact Your Advisor</p>
-                          <p className="text-amber-800 text-xs">To top up your investment or discuss withdrawal options as your 12-month cycle approaches completion, please contact your CapitalMasters advisor or our admin team. We'll guide you through the process and help you make the best decision for your financial goals.</p>
+                          <p className="text-amber-800 text-xs mb-4">To top up your investment or discuss withdrawal options as your 12-month cycle approaches completion, please contact your CapitalMasters advisor or our admin team. We'll guide you through the process and help you make the best decision for your financial goals.</p>
+                          <div className="flex flex-wrap gap-2">
+                            <a
+                              href="mailto:admin@capitalmasters.com"
+                              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+                              title="Send email"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              Email
+                            </a>
+                            <a
+                              href="https://wa.me/256701234567"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+                              title="Message on WhatsApp"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.776c0 2.615.738 5.17 2.137 7.307L2.822 22.88l8.384-2.367a9.844 9.844 0 004.736 1.204h.006c5.318 0 9.846-4.357 9.846-9.773 0-2.612-.738-5.166-2.138-7.306 1.399-2.14 2.138-4.694 2.138-7.306 0-5.416-4.528-9.773-9.846-9.773" />
+                              </svg>
+                              WhatsApp
+                            </a>
+                            <a
+                              href="tel:+256701234567"
+                              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+                              title="Call us"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              Call
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1541,8 +1634,6 @@ export default function ClientPortal() {
                             <span className="hidden sm:inline">Download</span>
                           </>
                         )}
-                        <ArrowDownTrayIcon className="h-4 w-4" />
-                        <span className="hidden sm:inline">Download</span>
                       </button>
                     </div>
                   </div>
@@ -1617,31 +1708,41 @@ export default function ClientPortal() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
             <div className="space-y-3">
-              <button className="w-full text-left px-4 py-3 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors flex items-center justify-between group">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="w-full text-left px-4 py-3 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors flex items-center justify-between group">
                 <span className="font-semibold text-gray-900">Make a Contribution</span>
                 <svg className="h-5 w-5 text-primary-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
                 <span className="font-semibold text-gray-900">Request Withdrawal</span>
                 <svg className="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
                 <span className="font-semibold text-gray-900">Update Investment Strategy</span>
                 <svg className="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
                 <span className="font-semibold text-gray-900">Schedule Consultation</span>
                 <svg className="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-between group">
                 <span className="font-semibold text-gray-900">Tax Documents</span>
                 <svg className="h-5 w-5 text-gray-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1675,6 +1776,71 @@ export default function ClientPortal() {
           // This will be handled by the modal's success callback
         }}
       />
+
+      {/* Contact Advisor Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Schedule Consultation</h3>
+              <button
+                onClick={() => setIsContactModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Choose your preferred way to contact our team for your consultation.
+            </p>
+            
+            <div className="space-y-3">
+              <a
+                href="mailto:admin@capitalmasters.com"
+                onClick={() => setIsContactModalOpen(false)}
+                className="w-full flex items-center gap-3 bg-blue-50 hover:bg-blue-100 text-blue-900 px-4 py-3 rounded-lg font-semibold transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>Send Email</span>
+              </a>
+              
+              <a
+                href="https://wa.me/256701234567"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsContactModalOpen(false)}
+                className="w-full flex items-center gap-3 bg-green-50 hover:bg-green-100 text-green-900 px-4 py-3 rounded-lg font-semibold transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.776c0 2.615.738 5.17 2.137 7.307L2.822 22.88l8.384-2.367a9.844 9.844 0 004.736 1.204h.006c5.318 0 9.846-4.357 9.846-9.773 0-2.612-.738-5.166-2.138-7.306 1.399-2.14 2.138-4.694 2.138-7.306 0-5.416-4.528-9.773-9.846-9.773" />
+                </svg>
+                <span>Message on WhatsApp</span>
+              </a>
+              
+              <a
+                href="tel:+256701234567"
+                onClick={() => setIsContactModalOpen(false)}
+                className="w-full flex items-center gap-3 bg-purple-50 hover:bg-purple-100 text-purple-900 px-4 py-3 rounded-lg font-semibold transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>Give us a Call</span>
+              </a>
+            </div>
+            
+            <button
+              onClick={() => setIsContactModalOpen(false)}
+              className="w-full mt-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-semibold transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

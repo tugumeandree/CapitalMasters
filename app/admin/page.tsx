@@ -1308,20 +1308,20 @@ export default function AdminPage() {
                     const userTransactions = transactions.filter((t) => t.userId === investor._id);
                     const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
                     const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
-                    const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
                     
                     const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
                     const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
-                    const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const netInvested = totalDeposits - totalWithdrawals;
                     
-                    const netProfit = totalReturns;
+                    // Expected return is 32% of net invested
+                    const expectedProfit = netInvested * 0.32;
                     
                     if (deposits.length > 0) {
                       chartData.push({
                         name: investor.name || investor.email,
-                        netProfit: netProfit,
+                        netProfit: expectedProfit,
                         deposits: totalDeposits,
-                        returns: totalReturns,
+                        returns: expectedProfit,
                       });
                     }
                   });
@@ -1333,20 +1333,119 @@ export default function AdminPage() {
                   ) : null;
                 })()}
 
+                {/* Fund Capacity Summary */}
+                {(() => {
+                  const maxFund = 1000000000; // 1 billion UGX
+                  let totalInvested = 0;
+                  
+                  users.filter(u => u.role !== 'admin').forEach((investor) => {
+                    const userTransactions = transactions.filter((t) => t.userId === investor._id);
+                    const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+                    const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+                    const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    totalInvested += totalDeposits - totalWithdrawals;
+                  });
+                  
+                  const capacityUsedPercent = (totalInvested / maxFund) * 100;
+                  const remainingCapacity = maxFund - totalInvested;
+                  
+                  return (
+                    <div className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-lg shadow-lg p-6 mb-6">
+                      <h3 className="text-lg font-bold mb-4">Fund Capacity Status</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                          <p className="text-indigo-100 text-xs font-medium mb-1">Total Fund</p>
+                          <p className="text-2xl font-bold">UGX {formatNumber(maxFund)}</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                          <p className="text-indigo-100 text-xs font-medium mb-1">Invested</p>
+                          <p className="text-2xl font-bold">UGX {formatNumber(totalInvested)}</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                          <p className="text-indigo-100 text-xs font-medium mb-1">Remaining</p>
+                          <p className="text-2xl font-bold">UGX {formatNumber(remainingCapacity)}</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                          <p className="text-indigo-100 text-xs font-medium mb-1">Capacity Used</p>
+                          <p className="text-2xl font-bold">{capacityUsedPercent.toFixed(2)}%</p>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-indigo-100 text-sm">Overall Fund Utilization</p>
+                          <p className="text-indigo-100 text-sm font-semibold">{capacityUsedPercent.toFixed(2)}%</p>
+                        </div>
+                        <div className="w-full bg-white/20 rounded-full h-3">
+                          <div
+                            className="bg-gradient-to-r from-green-400 to-blue-400 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(capacityUsedPercent, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {portfolios.map((p) => {
-                    const owner = users.find((u) => u._id === p.userId);
+                  {users.filter(u => u.role !== 'admin').map((investor) => {
+                    const userTransactions = transactions.filter((t) => t.userId === investor._id);
+                    const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+                    const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+                    
+                    const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const netInvested = totalDeposits - totalWithdrawals;
+                    
+                    const maxFund = 1000000000; // 1 billion UGX
+                    const sharePercentage = (netInvested / maxFund) * 100;
+                    const remainingCapacity = maxFund - netInvested;
+                    
                     return (
-                      <div key={p._id} className="bg-white rounded-lg shadow p-6">
+                      <div key={investor._id} className="bg-white rounded-lg shadow p-6">
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="font-semibold text-lg text-gray-900">{owner?.name || owner?.email || 'Unknown User'}</h3>
-                            <p className="text-sm text-gray-600">Total Value: UGX {p.totalValue?.toLocaleString() || 0}</p>
-                            <p className="text-sm text-gray-600">Holdings: {p.holdings?.length || 0}</p>
+                            <h3 className="font-semibold text-lg text-gray-900">{investor.name || investor.email}</h3>
+                            <p className="text-xs text-gray-500">{investor.email}</p>
                           </div>
-                          <div className="flex space-x-2">
-                            <button onClick={() => setEditingPortfolio(p)} className="text-blue-600 hover:text-blue-900 text-sm">Edit</button>
-                            <button onClick={() => deletePortfolio(p._id)} className="text-red-600 hover:text-red-900 text-sm">Delete</button>
+                        </div>
+                        
+                        <div className="space-y-3 mb-4">
+                          <div>
+                            <p className="text-xs text-gray-600 font-medium">Net Investment</p>
+                            <p className="text-lg font-bold text-blue-600">UGX {formatNumber(netInvested)}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-gray-600 font-medium">Share Percentage</p>
+                            <p className="text-2xl font-bold text-green-600">{sharePercentage.toFixed(4)}%</p>
+                          </div>
+                          
+                          <div className="bg-gray-50 p-3 rounded">
+                            <div className="flex justify-between items-center mb-2">
+                              <p className="text-xs text-gray-600">Fund Capacity Used</p>
+                              <p className="text-xs font-semibold text-gray-900">{sharePercentage.toFixed(2)}%</p>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
+                                style={{ width: `${Math.min(sharePercentage, 100)}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Remaining capacity: UGX {formatNumber(remainingCapacity)}
+                            </p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 pt-2">
+                            <div className="bg-blue-50 p-2 rounded">
+                              <p className="text-xs text-blue-600 font-medium">Total Deposits</p>
+                              <p className="text-sm font-bold text-blue-900">{deposits.length}</p>
+                            </div>
+                            <div className="bg-red-50 p-2 rounded">
+                              <p className="text-xs text-red-600 font-medium">Withdrawals</p>
+                              <p className="text-sm font-bold text-red-900">{withdrawals.length}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
