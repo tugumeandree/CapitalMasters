@@ -903,8 +903,8 @@ export default function AdminPage() {
                     const userTransactions = transactions.filter((t) => t.userId === investor._id);
                     const commodityTxns = userTransactions.filter((t) => t.investmentType === 'commodities');
                     const commodityContributions = commodityTxns.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
-                    const commodityPayouts = commodityTxns.filter((t) => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
-                    const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityPayouts.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const commodityWithdrawals = commodityTxns.filter((t) => t.type === 'withdrawal');
+                    const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityWithdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
                     totalCommodityPrincipal += commodityPrincipal;
                   });
 
