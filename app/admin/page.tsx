@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import UsersTab from '@/components/admin/UsersTab';
+import { NetProfitByInvestorChart } from '@/components/charts/NetProfitByInvestorChart';
 
 type Tab = 'users' | 'portfolios' | 'transactions' | 'deposits';
 
@@ -1295,6 +1296,41 @@ export default function AdminPage() {
                     onCancel={() => setEditingPortfolio(null)}
                   />
                 )}
+
+                {/* Net Profit by Investor Chart */}
+                {(() => {
+                  const chartData: any[] = [];
+                  
+                  users.filter(u => u.role !== 'admin').forEach((investor) => {
+                    const userTransactions = transactions.filter((t) => t.userId === investor._id);
+                    const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+                    const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+                    const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
+                    const fees = userTransactions.filter((t) => t.type === 'fee');
+                    
+                    const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const totalFees = fees.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    
+                    const netProfit = totalReturns - totalFees;
+                    
+                    if (deposits.length > 0) {
+                      chartData.push({
+                        name: investor.name || investor.email,
+                        netProfit: netProfit,
+                        deposits: totalDeposits,
+                        returns: totalReturns,
+                      });
+                    }
+                  });
+                  
+                  return chartData.length > 0 ? (
+                    <div className="mb-6">
+                      <NetProfitByInvestorChart data={chartData} />
+                    </div>
+                  ) : null;
+                })()}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {portfolios.map((p) => {
