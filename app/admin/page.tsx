@@ -156,10 +156,10 @@ export default function AdminPage() {
       const isEligibleFor2026Jan = investmentDate.getFullYear() === 2025 || investmentDate.getFullYear() < 2025;
       const isRonald = u.email === 'ronaldopa323@gmail.com';
       const contributions = userTransactions.filter(t => ['deposit', 'investment', 'loan_given'].includes(t.type));
-      const payouts = userTransactions.filter(t => ['withdrawal', 'dividend', 'interest', 'loan_repayment'].includes(t.type));
+      const withdrawals = userTransactions.filter(t => t.type === 'withdrawal');
       const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
-      const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
-      const netInvested = totalContribs - totalPayouts;
+      const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+      const netInvested = totalContribs - totalWithdrawals;
       const expectedPayout = netInvested * 0.32;
       const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
       
@@ -1306,14 +1306,12 @@ export default function AdminPage() {
                     const deposits = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
                     const withdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
                     const returns = userTransactions.filter((t) => ['dividend', 'interest', 'loan_repayment'].includes(t.type));
-                    const fees = userTransactions.filter((t) => t.type === 'fee');
                     
                     const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
                     const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
                     const totalReturns = returns.reduce((sum, t) => sum + (t.amount || 0), 0);
-                    const totalFees = fees.reduce((sum, t) => sum + (t.amount || 0), 0);
                     
-                    const netProfit = totalReturns - totalFees;
+                    const netProfit = totalReturns;
                     
                     if (deposits.length > 0) {
                       chartData.push({
