@@ -900,14 +900,17 @@ export default function AdminPage() {
                 {/* Total Admin Fee Summary */}
                 {(() => {
                   let totalCommodityPrincipal = 0;
+                  
                   users.forEach((investor) => {
                     const userTransactions = transactions.filter((t) => t.userId === investor._id);
-                    const commodityTxns = userTransactions.filter((t) => t.investmentType === 'commodities');
-                    const commodityContributions = commodityTxns.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
-                    const commodityWithdrawals = commodityTxns.filter((t) => t.type === 'withdrawal');
-                    const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityWithdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
-                    totalCommodityPrincipal += commodityPrincipal;
+                    // Include ALL contributions regardless of investmentType
+                    const allContributions = userTransactions.filter((t) => ['deposit', 'investment', 'loan_given'].includes(t.type));
+                    const allWithdrawals = userTransactions.filter((t) => t.type === 'withdrawal');
+                    const principal = allContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - allWithdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    totalCommodityPrincipal += principal;
                   });
+                  
+                  console.log('Admin Fee Calculation - Updated:', { totalCommodityPrincipal, allTransactionsCount: transactions.length });
 
                   const totalAdminFee4Months = totalCommodityPrincipal * 0.08;
 
