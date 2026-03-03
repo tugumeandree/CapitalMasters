@@ -1,3 +1,5 @@
+import { calculateTotalInterest, getCurrentCycle } from '@/lib/interestCalculator';
+
 interface UserTableRowProps {
   user: any;
   portfolios: any[];
@@ -36,7 +38,16 @@ export default function UserTableRow({ user, portfolios, transactions, onEdit, o
   const totalPayouts = payouts.reduce((sum, t) => sum + t.amount, 0);
   const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
   const netInvested = totalContribs - totalWithdrawals;
-  const payout = netInvested * 0.32;
+  
+  // Calculate pro-rated payout based on deposit dates
+  const currentCycle = getCurrentCycle();
+  const depositCalculations = contributions.map(t => ({
+    date: new Date(t.date),
+    amount: t.amount
+  }));
+  const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+  const payout = interestCalc.totalInterest;
+  
   const payoutMonth = isRonald ? 'May 2026' : (isEligibleFor2026Jan ? 'Jan 2026' : 'May 2026');
 
   return (

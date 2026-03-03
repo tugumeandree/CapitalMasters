@@ -3,6 +3,7 @@
 import React from 'react';
 import UserCard from './UserCard';
 import UserTableRow from './UserTableRow';
+import { calculateTotalInterest, getCurrentCycle } from '@/lib/interestCalculator';
 
 interface UsersTabProps {
   users: any[];
@@ -65,7 +66,8 @@ export default function UsersTab({
   totalPages,
   UserForm,
 }: UsersTabProps) {
-  // Calculate total expected payout for all investors
+  // Calculate total expected payout for all investors (pro-rated)
+  const currentCycle = getCurrentCycle();
   const totalExpectedPayout = users
     .filter(u => u.role !== 'admin')
     .reduce((total, user) => {
@@ -73,12 +75,15 @@ export default function UsersTab({
       const contributions = userTransactions.filter(t => 
         ['deposit', 'investment', 'loan_given'].includes(t.type)
       );
-      const withdrawals = userTransactions.filter(t => t.type === 'withdrawal');
-      const totalContribs = contributions.reduce((sum, t) => sum + t.amount, 0);
-      const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-      const netInvested = totalContribs - totalWithdrawals;
-      const payout = netInvested * 0.32;
-      return total + payout;
+      
+      // Calculate pro-rated interest based on deposit dates
+      const depositCalculations = contributions.map(t => ({
+        date: new Date(t.date),
+        amount: t.amount
+      }));
+      const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+      
+      return total + interestCalc.totalInterest;
     }, 0);
 
   return (
@@ -129,7 +134,7 @@ export default function UsersTab({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-white text-base sm:text-lg font-semibold mb-1">Total Expected Payout to All Investors</h3>
-            <p className="text-green-100 text-xs sm:text-sm">32% returns on all active portfolios</p>
+            <p className="text-green-100 text-xs sm:text-sm">Pro-rated returns based on deposit dates & cycle position</p>
           </div>
           <div className="sm:text-right">
             <p className="text-white text-2xl sm:text-4xl font-bold">UGX {formatNumber(totalExpectedPayout)}</p>

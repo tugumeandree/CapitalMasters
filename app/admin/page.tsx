@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import UsersTab from '@/components/admin/UsersTab';
 import { NetProfitByInvestorChart } from '@/components/charts/NetProfitByInvestorChart';
+import { calculateTotalInterest, getCurrentCycle } from '@/lib/interestCalculator';
 
 type Tab = 'users' | 'portfolios' | 'transactions' | 'deposits';
 
@@ -1153,6 +1154,17 @@ export default function AdminPage() {
                       {/* Investment Type Breakdown */}
                       {(() => {
                         if (commodityPrincipal > 0) {
+                          // Calculate pro-rated payout for commodity deposits
+                          const currentCycle = getCurrentCycle();
+                          const commodityDepositCalcs = commodityContributions.map(t => ({
+                            date: new Date(t.date),
+                            amount: t.amount
+                          }));
+                          const commodityInterest = calculateTotalInterest(commodityDepositCalcs, currentCycle);
+                          const proRatedPayout = commodityInterest.totalInterest;
+                          const grossReturn = proRatedPayout / 0.8; // 32% to investor = 80% of 40% gross
+                          const adminFee = grossReturn - proRatedPayout;
+                          
                           return (
                             <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
                               <div className="flex justify-between items-center mb-2">
@@ -1181,19 +1193,32 @@ export default function AdminPage() {
                                   <p className="text-xl font-bold text-amber-900">UGX {formatNumber(commodityPrincipal)}</p>
                                 </div>
                                 <div>
-                                  <p className="text-amber-600 font-medium">4-Month Payout (32%)</p>
-                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(commodityPrincipal * 0.32)}</p>
+                                  <p className="text-amber-600 font-medium">Investor Payout (Pro-rated)</p>
+                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(proRatedPayout)}</p>
+                                  {commodityInterest.deposits.some(d => d.monthsInCycle < 4) && (
+                                    <p className="text-xs text-amber-700 mt-1">⚡ Pro-rated calculation</p>
+                                  )}
                                 </div>
                                 <div>
-                                  <p className="text-amber-600 font-medium">Total Return (40%)</p>
-                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(commodityPrincipal * 0.40)}</p>
+                                  <p className="text-amber-600 font-medium">Total Return</p>
+                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(grossReturn)}</p>
                                 </div>
                                 <div>
-                                  <p className="text-amber-600 font-medium">Your Admin Fee (8%)</p>
-                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(commodityPrincipal * 0.08)}</p>
+                                  <p className="text-amber-600 font-medium">Your Admin Fee</p>
+                                  <p className="text-xl font-bold text-amber-900">UGX {formatNumber(adminFee)}</p>
                                 </div>
                               </div>
-                              <p className="text-xs text-amber-700 mt-2">Next payout calculation based on current principal</p>
+                              {commodityInterest.deposits.some(d => d.monthsInCycle < 4) && (
+                                <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
+                                  <div className="font-semibold text-blue-900 mb-1">📊 Pro-rated Breakdown:</div>
+                                  {commodityInterest.deposits.map((calc, idx) => (
+                                    <div key={idx} className="text-blue-700 ml-2">
+                                      • UGX {calc.amount.toLocaleString()} × {calc.monthsInCycle} months @ 8% = UGX {calc.interestAmount.toLocaleString()}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              <p className="text-xs text-amber-700 mt-2">Payout calculated based on deposit dates and remaining cycle months</p>
 
                               <div className="mt-4 bg-white/70 border border-amber-200 rounded p-3">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1208,12 +1233,12 @@ export default function AdminPage() {
                                     )}
                                   </div>
                                   <div className="text-center">
-                                    <p className="text-xs text-amber-700 mb-1">Payout Amount (32%)</p>
-                                    <p className="font-bold text-amber-900 text-lg">UGX {formatNumber(commodityPrincipal * 0.32)}</p>
+                                    <p className="text-xs text-amber-700 mb-1">Payout Amount (Pro-rated)</p>
+                                    <p className="font-bold text-amber-900 text-lg">UGX {formatNumber(proRatedPayout)}</p>
                                   </div>
                                   <div>
                                     <button
-                                      onClick={() => generatePayout(investor, commodityPrincipal * 0.32)}
+                                      onClick={() => generatePayout(investor, proRatedPayout)}
                                       disabled={!investor.payoutStartDate || !investor.payoutEndDate}
                                       className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
                                         investor.payoutStartDate && investor.payoutEndDate
@@ -1303,6 +1328,7 @@ export default function AdminPage() {
                 {/* Net Profit by Investor Chart */}
                 {(() => {
                   const chartData: any[] = [];
+                  const currentCycle = getCurrentCycle();
                   
                   users.filter(u => u.role !== 'admin').forEach((investor) => {
                     const userTransactions = transactions.filter((t) => t.userId === investor._id);
@@ -1311,10 +1337,14 @@ export default function AdminPage() {
                     
                     const totalDeposits = deposits.reduce((sum, t) => sum + (t.amount || 0), 0);
                     const totalWithdrawals = withdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
-                    const netInvested = totalDeposits - totalWithdrawals;
                     
-                    // Expected return is 32% of net invested
-                    const expectedProfit = netInvested * 0.32;
+                    // Calculate pro-rated interest based on actual deposit dates
+                    const depositCalculations = deposits.map(t => ({
+                      date: new Date(t.date),
+                      amount: t.amount
+                    }));
+                    const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+                    const expectedProfit = interestCalc.totalInterest;
                     
                     if (deposits.length > 0) {
                       chartData.push({

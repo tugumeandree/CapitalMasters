@@ -16,6 +16,7 @@ import { PerformanceChart } from '@/components/charts/PerformanceChart';
 import { ProfileEditModal } from '@/components/ProfileEditModal';
 import { generatePortfolioStatement, generateTransactionReport } from '@/lib/pdfGenerator';
 import { formatPrimaryAndSecondary } from '@/lib/currency';
+import { calculateTotalInterest, getCurrentCycle } from '@/lib/interestCalculator';
 
 interface DashboardData {
   portfolio: {
@@ -418,20 +419,28 @@ export default function ClientPortal() {
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-green-600">
                       {(() => {
-                        // Calculate net invested amount from transactions
+                        // Calculate pro-rated interest based on deposit dates
                         const contributions = dashboardData.transactions.filter(t => 
                           ['deposit', 'investment', 'loan_given'].includes(t.type)
                         );
                         const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
-                        const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                        const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-                        const netInvested = totalContributions - totalWithdrawals;
                         
-                        // Calculate payout for 4-month season
-                        // 8% per month × 4 months = 32% total
-                        const netPayoutPerMonth = netInvested * 0.08;
-                        const totalSeasonPayout = netPayoutPerMonth * 4;
-                        const v = formatPrimaryAndSecondary(totalSeasonPayout);
+                        // Get current cycle for calculation
+                        const currentCycle = getCurrentCycle();
+                        
+                        // Calculate interest for each deposit based on its date
+                        const depositCalculations = contributions.map(t => ({
+                          date: new Date(t.date),
+                          amount: t.amount
+                        }));
+                        
+                        const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+                        
+                        // Subtract withdrawals from total value
+                        const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
+                        const finalPayout = interestCalc.totalInterest;
+                        
+                        const v = formatPrimaryAndSecondary(finalPayout);
                         return (
                           <>
                             <span className="font-semibold">{v.primary}</span>
@@ -448,6 +457,38 @@ export default function ClientPortal() {
                         'Payout week: Jan 23-Jan 30, 2026'
                       )}
                     </div>
+                    {(() => {
+                      // Show pro-rated calculation breakdown
+                      const contributions = dashboardData.transactions.filter(t => 
+                        ['deposit', 'investment', 'loan_given'].includes(t.type)
+                      );
+                      
+                      if (contributions.length > 0) {
+                        const currentCycle = getCurrentCycle();
+                        const depositCalculations = contributions.map(t => ({
+                          date: new Date(t.date),
+                          amount: t.amount
+                        }));
+                        const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+                        
+                        // Check if any deposits have different rates (pro-rated)
+                        const hasProRatedDeposits = interestCalc.deposits.some(d => d.monthsInCycle < 4);
+                        
+                        if (hasProRatedDeposits) {
+                          return (
+                            <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
+                              <div className="font-semibold text-blue-900 mb-1">📊 Pro-rated Interest Breakdown:</div>
+                              {interestCalc.deposits.map((calc, idx) => (
+                                <div key={idx} className="text-blue-700 ml-2">
+                                  • UGX {calc.amount.toLocaleString()} × {calc.monthsInCycle} months = UGX {calc.interestAmount.toLocaleString()}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                      }
+                      return null;
+                    })()}
                     <div className="text-xs text-gray-500 mb-2">
                       {(() => {
                         if (user?.payoutStartDate) {
@@ -463,22 +504,24 @@ export default function ClientPortal() {
                     </div>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between font-semibold text-blue-600">
-                        <span>Net Per Month (8%):</span>
+                        <span>Current Cycle Payout (Pro-rated):</span>
                         <span>
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
                               ['deposit', 'investment', 'loan_given'].includes(t.type)
                             );
-                            const withdrawals = dashboardData.transactions.filter(t => t.type === 'withdrawal');
-                            const totalContributions = contributions.reduce((sum, t) => sum + t.amount, 0);
-                            const totalWithdrawals = withdrawals.reduce((sum, t) => sum + t.amount, 0);
-                            const netInvested = totalContributions - totalWithdrawals;
-                            return formatPrimaryAndSecondary(netInvested * 0.08).primary;
+                            const currentCycle = getCurrentCycle();
+                            const depositCalculations = contributions.map(t => ({
+                              date: new Date(t.date),
+                              amount: t.amount
+                            }));
+                            const interestCalc = calculateTotalInterest(depositCalculations, currentCycle);
+                            return formatPrimaryAndSecondary(interestCalc.totalInterest).primary;
                           })()}
                         </span>
                       </div>
                       <div className="flex justify-between font-bold text-green-600 text-base border-t-2 pt-2 mt-2">
-                        <span>Total 4-Month Payout (32%):</span>
+                        <span>Full 4-Month Equivalent (32%):</span>
                         <span>
                           {(() => {
                             const contributions = dashboardData.transactions.filter(t => 
