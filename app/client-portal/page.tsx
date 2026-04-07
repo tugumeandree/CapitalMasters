@@ -53,6 +53,17 @@ interface DashboardData {
   }>;
 }
 
+const EMPTY_DASHBOARD_DATA: DashboardData = {
+  portfolio: {
+    totalValue: 0,
+    totalGain: 0,
+    totalGainPercent: 0,
+    holdings: [],
+  },
+  transactions: [],
+  documents: [],
+};
+
 export default function ClientPortal() {
   const { user, loading, isAuthenticated, login, logout } = useAuth();
   const router = useRouter();
@@ -106,9 +117,11 @@ export default function ClientPortal() {
         setDashboardData(data);
       } else {
         console.error('Dashboard fetch failed:', response.status, response.statusText);
+        setDashboardData(EMPTY_DASHBOARD_DATA);
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      setDashboardData(EMPTY_DASHBOARD_DATA);
     } finally {
       setLoadingData(false);
     }

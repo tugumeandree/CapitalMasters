@@ -37,9 +37,29 @@ export async function GET(request: NextRequest) {
 
     const db = await getDatabase();
 
-    // Support both ObjectId and string-stored userId
-    const userIdObj = new ObjectId(userId);
-    const userMatch: any = { $or: [{ userId: userIdObj }, { userId: userId }] };
+    // Resolve user record first so we can support legacy records keyed by email or string IDs.
+    const usersCollection = db.collection(collections.users);
+    const userQuery: Record<string, unknown>[] = [{ _id: userId }];
+    if (ObjectId.isValid(userId)) {
+      userQuery.push({ _id: new ObjectId(userId) });
+    }
+
+    const currentUser = await usersCollection.findOne({ $or: userQuery });
+    const normalizedEmail = typeof currentUser?.email === 'string'
+      ? currentUser.email.toLowerCase()
+      : null;
+
+    // Support both ObjectId, string-stored userId, and legacy email-keyed records.
+    const userMatchConditions: Array<Record<string, unknown>> = [{ userId }];
+    if (ObjectId.isValid(userId)) {
+      userMatchConditions.push({ userId: new ObjectId(userId) });
+    }
+    if (normalizedEmail) {
+      userMatchConditions.push({ userId: normalizedEmail });
+      userMatchConditions.push({ userEmail: normalizedEmail });
+      userMatchConditions.push({ email: normalizedEmail });
+    }
+    const userMatch = { $or: userMatchConditions };
     
     // Fetch portfolio
     const portfoliosCollection = db.collection<Portfolio>(collections.portfolios);
@@ -69,13 +89,79 @@ export async function GET(request: NextRequest) {
 
     console.log('[Dashboard API] Documents found:', documents.length);
 
+    const portfolioFromDb = portfolio ? {
+      totalValue: portfolio.totalValue,
+      totalGain: portfolio.totalGain,
+      totalGainPercent: portfolio.totalGainPercent,
+      holdings: portfolio.holdings || [],
+    } : null;
+
+    const derivedPortfolio = (() => {
+      if (portfolioFromDb) return portfolioFromDb;
+
+      const contributionTypes = new Set(['deposit', 'investment', 'loan_given']);
+      const payoutTypes = new Set(['withdrawal', 'fee']);
+      const gainTypes = new Set(['interest', 'dividend', 'loan_repayment']);
+
+      const validTransactions = transactions.filter(t => t.status !== 'failed');
+
+      const totalContributions = validTransactions
+        .filter(t => contributionTypes.has(t.type))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      const totalPayouts = validTransactions
+        .filter(t => payoutTypes.has(t.type))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      const totalGains = validTransactions
+        .filter(t => gainTypes.has(t.type))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      const netInvested = Math.max(totalContributions - totalPayouts, 0);
+
+      const bucketMap = new Map<string, number>();
+      validTransactions
+        .filter(t => contributionTypes.has(t.type))
+        .forEach((t) => {
+          const key = t.investmentType || 'other';
+          bucketMap.set(key, (bucketMap.get(key) || 0) + (t.amount || 0));
+        });
+
+      const totalBucketValue = Array.from(bucketMap.values()).reduce((sum, value) => sum + value, 0);
+
+      const holdings = Array.from(bucketMap.entries()).map(([bucket, value]) => {
+        const allocation = totalBucketValue > 0 ? (value / totalBucketValue) * 100 : 0;
+        return {
+          name: bucket.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+          type: bucket,
+          value,
+          allocation,
+          change: 0,
+        };
+      });
+
+      if (holdings.length === 0 && netInvested > 0) {
+        holdings.push({
+          name: 'Managed Portfolio',
+          type: 'other',
+          value: netInvested,
+          allocation: 100,
+          change: 0,
+        });
+      }
+
+      const totalGainPercent = totalContributions > 0 ? (totalGains / totalContributions) * 100 : 0;
+
+      return {
+        totalValue: netInvested,
+        totalGain: totalGains,
+        totalGainPercent,
+        holdings,
+      };
+    })();
+
     const responseData = {
-      portfolio: portfolio ? {
-        totalValue: portfolio.totalValue,
-        totalGain: portfolio.totalGain,
-        totalGainPercent: portfolio.totalGainPercent,
-        holdings: portfolio.holdings || [],
-      } : null,
+      portfolio: derivedPortfolio,
       transactions: transactions.map(t => {
         try {
           let dateStr: string;
@@ -163,8 +249,10 @@ export async function GET(request: NextRequest) {
 
     console.log('[Dashboard API] Sending response:', {
       hasPortfolio: !!responseData.portfolio,
+      usingDerivedPortfolio: !portfolioFromDb,
       transactionsCount: responseData.transactions.length,
       documentsCount: responseData.documents.length,
+      matchedByEmailFallback: !!normalizedEmail,
     });
 
     return NextResponse.json(responseData);

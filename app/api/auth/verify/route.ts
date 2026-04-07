@@ -26,7 +26,13 @@ export async function GET(request: NextRequest) {
       // Fetch user from database
       const db = await getDatabase();
       const usersCollection = db.collection<User>(collections.users);
-      const user = await usersCollection.findOne({ _id: new ObjectId(payload.userId as string) });
+      const tokenUserId = payload.userId as string;
+      const userLookup: Record<string, unknown>[] = [{ _id: tokenUserId }];
+      if (ObjectId.isValid(tokenUserId)) {
+        userLookup.push({ _id: new ObjectId(tokenUserId) });
+      }
+
+      const user = await usersCollection.findOne({ $or: userLookup });
       
       if (!user) {
         return NextResponse.json(
