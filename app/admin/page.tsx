@@ -28,6 +28,10 @@ export default function AdminPage() {
   const [payoutSelections, setPayoutSelections] = useState<Record<string, string>>({});
   const [payoutDates, setPayoutDates] = useState<Record<string, { startDate: string; endDate: string }>>({});
   const [savingPayoutDates, setSavingPayoutDates] = useState<string | null>(null);
+  const [allocationSelections, setAllocationSelections] = useState<Record<string, { investmentType: string; commodityCompany: string }>>({});
+  const [updatingAllocationUserId, setUpdatingAllocationUserId] = useState<string | null>(null);
+  const [transactionReviewFilter, setTransactionReviewFilter] = useState<{ userId: string; expectedType: string } | null>(null);
+  const [isAutoFixingCommodityTags, setIsAutoFixingCommodityTags] = useState(false);
   
   // Users tab state
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -50,6 +54,8 @@ export default function AdminPage() {
   };
 
   const allowedPayoutMonths = [0, 4, 8]; // Jan, May, Sep (0-based)
+  const allocationTransactionTypes = ['deposit', 'investment', 'loan_given', 'withdrawal'];
+  const defaultCommodityCompany = 'Dregif Coffee Ltd (Coffee & Cocoa)';
 
   const buildPayoutOptions = () => {
     const now = new Date();
@@ -632,6 +638,192 @@ export default function AdminPage() {
     }
   }
 
+  function getUserAllocationDraft(userId: string) {
+    const existing = allocationSelections[userId];
+    if (existing) return existing;
+
+    const latestTaggedTxn = transactions
+      .filter((t) => t.userId === userId && allocationTransactionTypes.includes(t.type))
+      .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())[0];
+
+    return {
+      investmentType: latestTaggedTxn?.investmentType || 'equity',
+      commodityCompany: latestTaggedTxn?.commodityCompany || defaultCommodityCompany,
+    };
+  }
+
+  function updateUserAllocationDraft(userId: string, updates: Partial<{ investmentType: string; commodityCompany: string }>) {
+    const current = getUserAllocationDraft(userId);
+    setAllocationSelections((prev) => ({
+      ...prev,
+      [userId]: {
+        ...current,
+        ...updates,
+      },
+    }));
+  }
+
+  function getTransactionsNeedingAllocationUpdate(
+    userId: string,
+    draft?: { investmentType: string; commodityCompany: string }
+  ) {
+    const target = draft || getUserAllocationDraft(userId);
+    const userTransactions = transactions.filter(
+      (t) => t.userId === userId && allocationTransactionTypes.includes(t.type)
+    );
+
+    return userTransactions.filter((txn) => {
+      const currentType = txn.investmentType || 'equity';
+      const typeMismatch = currentType !== target.investmentType;
+
+      if (target.investmentType !== 'commodities') {
+        return typeMismatch;
+      }
+
+      const currentCommodityCompany = txn.commodityCompany || defaultCommodityCompany;
+      const commodityMismatch = currentCommodityCompany !== target.commodityCompany;
+      return typeMismatch || commodityMismatch;
+    });
+  }
+
+  async function updateUserAssetAllocation(userId: string) {
+    const draft = getUserAllocationDraft(userId);
+    const selectedType = draft.investmentType || 'equity';
+    const selectedCommodityCompany = draft.commodityCompany || defaultCommodityCompany;
+
+    const userTransactions = transactions.filter(
+      (t) => t.userId === userId && allocationTransactionTypes.includes(t.type)
+    );
+    const transactionsToUpdate = getTransactionsNeedingAllocationUpdate(userId, draft);
+
+    if (userTransactions.length === 0) {
+      alert('No principal transactions found for this investor.');
+      return;
+    }
+
+    if (transactionsToUpdate.length === 0) {
+      alert('This investor is already correctly tagged for the selected allocation.');
+      return;
+    }
+
+    if (!confirm(`Apply ${selectedType} allocation to ${transactionsToUpdate.length} mismatched transaction(s) for this investor?`)) {
+      return;
+    }
+
+    try {
+      setUpdatingAllocationUserId(userId);
+      const token = localStorage.getItem('token');
+
+      const responses = await Promise.all(
+        transactionsToUpdate.map((txn) => {
+          const payload = {
+            ...txn,
+            investmentType: selectedType,
+            commodityCompany: selectedType === 'commodities' ? selectedCommodityCompany : undefined,
+          };
+
+          return fetch(`/api/admin/transactions?id=${txn._id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        })
+      );
+
+      const failed = responses.filter((res) => !res.ok).length;
+      if (failed > 0) {
+        alert(`Updated with ${failed} failed request(s). Please retry.`);
+        return;
+      }
+
+      setAllocationSelections((prev) => {
+        const next = { ...prev };
+        delete next[userId];
+        return next;
+      });
+
+      fetchAllData();
+      alert('Asset allocation updated successfully.');
+    } catch (error) {
+      console.error('Failed to update asset allocation:', error);
+      alert('Failed to update asset allocation');
+    } finally {
+      setUpdatingAllocationUserId(null);
+    }
+  }
+
+  async function autoFixCommodityTaggedTransactions() {
+    const candidateTransactions = transactions.filter((txn) => {
+      if (!allocationTransactionTypes.includes(txn.type)) return false;
+      if ((txn.investmentType || 'equity') === 'commodities') return false;
+      const description = (txn.description || '').toLowerCase();
+      return /coffee|cocoa|commodity|commodities/.test(description);
+    });
+
+    if (candidateTransactions.length === 0) {
+      alert('No likely commodity mismatches found.');
+      return;
+    }
+
+    const totalAmount = candidateTransactions.reduce((sum, txn) => sum + Math.abs(txn.amount || 0), 0);
+    const uniqueUsers = new Set(candidateTransactions.map((txn) => txn.userId)).size;
+    const confirmed = confirm(
+      `Auto-fix ${candidateTransactions.length} transaction(s) across ${uniqueUsers} user(s) for UGX ${formatNumber(totalAmount)}? This will set allocation to commodities.`
+    );
+
+    if (!confirmed) return;
+
+    const inferCommodityCompany = (descriptionRaw: string) => {
+      const description = (descriptionRaw || '').toLowerCase();
+      if (description.includes('stanfield')) return 'Stanfield Commodities Exchange (Coffee)';
+      if (description.includes('dregif')) return 'Dregif Coffee Ltd (Coffee & Cocoa)';
+      if (description.includes('coffee') && description.includes('cocoa')) return 'Dregif Coffee Ltd (Coffee & Cocoa)';
+      if (description.includes('coffee')) return 'Stanfield Commodities Exchange (Coffee)';
+      return defaultCommodityCompany;
+    };
+
+    try {
+      setIsAutoFixingCommodityTags(true);
+      const token = localStorage.getItem('token');
+
+      const responses = await Promise.all(
+        candidateTransactions.map((txn) => {
+          const payload = {
+            ...txn,
+            investmentType: 'commodities',
+            commodityCompany: inferCommodityCompany(txn.description || ''),
+          };
+
+          return fetch(`/api/admin/transactions?id=${txn._id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        })
+      );
+
+      const failed = responses.filter((res) => !res.ok).length;
+      if (failed > 0) {
+        alert(`Auto-fix completed with ${failed} failed request(s). Please retry.`);
+      } else {
+        alert('Commodity tag auto-fix completed successfully.');
+      }
+
+      fetchAllData();
+    } catch (error) {
+      console.error('Failed to auto-fix commodity tags:', error);
+      alert('Failed to auto-fix commodity tags');
+    } finally {
+      setIsAutoFixingCommodityTags(false);
+    }
+  }
+
   async function generatePayout(investor: any, amount: number) {
     if (!amount || amount <= 0) {
       alert('No principal available for payout calculation.');
@@ -818,6 +1010,14 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
+                      onClick={autoFixCommodityTaggedTransactions}
+                      disabled={isAutoFixingCommodityTags}
+                      className="bg-amber-600 hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                      title="Auto-fix coffee/cocoa transaction allocation tags"
+                    >
+                      {isAutoFixingCommodityTags ? 'Fixing Tags...' : 'Auto Fix Commodity Tags'}
+                    </button>
+                    <button
                       onClick={() => exportDeposits('pdf')}
                       className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                       title="Export to PDF"
@@ -958,6 +1158,7 @@ export default function AdminPage() {
                   const commodityPrincipal = commodityContributions.reduce((sum, t) => sum + (t.amount || 0), 0) - commodityWithdrawals.reduce((sum, t) => sum + (t.amount || 0), 0);
                   
                   const portfolio = portfolios.find((p) => p.userId === investor._id);
+                  const allocationDraft = getUserAllocationDraft(investor._id);
 
                   return (
                     <div key={investor._id} className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4">
@@ -1078,6 +1279,79 @@ export default function AdminPage() {
                               : 'Set the payout period for this investor'}
                           </p>
                         </div>
+                      </div>
+
+                      <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-4">
+                        <p className="text-sm font-semibold text-amber-900 mb-2">Set Asset Allocation Label</p>
+                        {(() => {
+                          const principalTransactions = userTransactions.filter((t) => allocationTransactionTypes.includes(t.type));
+                          const transactionsToUpdate = getTransactionsNeedingAllocationUpdate(investor._id, allocationDraft);
+                          const amountToRetag = transactionsToUpdate.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+
+                          return (
+                            <div className="mb-3 rounded border border-amber-300 bg-white/60 px-3 py-2 text-xs text-amber-900">
+                              <span className="font-semibold">Preview:</span>{' '}
+                              {transactionsToUpdate.length} of {principalTransactions.length} principal transaction(s) will be updated
+                              {transactionsToUpdate.length > 0 ? ` (UGX ${formatNumber(amountToRetag)} total amount)` : ''}.
+                            </div>
+                          );
+                        })()}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-end">
+                          <div className="sm:col-span-1 lg:col-span-2">
+                            <label className="text-xs text-amber-700">Investment Type</label>
+                            <select
+                              value={allocationDraft.investmentType}
+                              onChange={(e) => updateUserAllocationDraft(investor._id, { investmentType: e.target.value })}
+                              className="input-field text-sm"
+                            >
+                              <option value="equity">Equity / Shares</option>
+                              <option value="commodities">Commodities (Coffee & Cocoa)</option>
+                              <option value="bonds">Bonds</option>
+                              <option value="loan">Loan</option>
+                              <option value="mutual_fund">Mutual Fund</option>
+                              <option value="real_estate">Real Estate</option>
+                              <option value="fixed_deposit">Fixed Deposit</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          {allocationDraft.investmentType === 'commodities' && (
+                            <div className="sm:col-span-1 lg:col-span-1">
+                              <label className="text-xs text-amber-700">Commodity Company</label>
+                              <select
+                                value={allocationDraft.commodityCompany}
+                                onChange={(e) => updateUserAllocationDraft(investor._id, { commodityCompany: e.target.value })}
+                                className="input-field text-sm"
+                              >
+                                <option value="Dregif Coffee Ltd (Coffee & Cocoa)">Dregif Coffee Ltd (Coffee & Cocoa)</option>
+                                <option value="Stanfield Commodities Exchange (Coffee)">Stanfield Commodities Exchange (Coffee)</option>
+                                <option value="Both">Both</option>
+                              </select>
+                            </div>
+                          )}
+                          <div className="sm:col-span-1 lg:col-span-1">
+                            <button
+                              onClick={() => updateUserAssetAllocation(investor._id)}
+                              disabled={updatingAllocationUserId === investor._id}
+                              className="btn-primary text-sm w-full"
+                            >
+                              {updatingAllocationUserId === investor._id ? 'Updating...' : 'Apply Allocation'}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <button
+                            onClick={() => {
+                              setTransactionReviewFilter({ userId: investor._id, expectedType: allocationDraft.investmentType || 'equity' });
+                              setActiveTab('transactions');
+                            }}
+                            className="text-xs font-semibold text-amber-800 hover:text-amber-900 underline"
+                          >
+                            Review mismatched records in Transactions tab
+                          </button>
+                        </div>
+                        <p className="text-xs text-amber-700 mt-2">
+                          Applies the selected allocation to this investor's deposit, investment, loan, and withdrawal transactions.
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
@@ -1522,6 +1796,21 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {transactionReviewFilter && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <p className="text-sm text-amber-900">
+                      Reviewing mismatches for selected investor. Showing principal transactions where allocation does not match expected type:
+                      <span className="font-semibold"> {transactionReviewFilter.expectedType}</span>
+                    </p>
+                    <button
+                      onClick={() => setTransactionReviewFilter(null)}
+                      className="text-sm text-amber-800 hover:text-amber-900 font-semibold underline"
+                    >
+                      Clear Review Filter
+                    </button>
+                  </div>
+                )}
+
                 {editingTransaction && (
                   <TransactionForm
                     transaction={editingTransaction}
@@ -1545,7 +1834,13 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {transactions.map((t) => {
+                      {transactions.filter((t) => {
+                        if (!transactionReviewFilter) return true;
+                        if (t.userId !== transactionReviewFilter.userId) return false;
+                        if (!allocationTransactionTypes.includes(t.type)) return false;
+                        const taggedType = t.investmentType || 'equity';
+                        return taggedType !== transactionReviewFilter.expectedType;
+                      }).map((t) => {
                         const owner = users.find((u) => u._id === t.userId);
                         return (
                           <tr key={t._id}>
@@ -1812,9 +2107,9 @@ function TransactionForm({ transaction, users, onChange, onSave, onCancel }: any
               className="input-field"
             >
               <option value="">Select Company</option>
-              <option value="dregif">Dregif Coffee Ltd (Coffee & Cocoa)</option>
-              <option value="stanfield">Stanfield Commodities Exchange (Coffee)</option>
-              <option value="both">Both Companies</option>
+              <option value="Dregif Coffee Ltd (Coffee & Cocoa)">Dregif Coffee Ltd (Coffee & Cocoa)</option>
+              <option value="Stanfield Commodities Exchange (Coffee)">Stanfield Commodities Exchange (Coffee)</option>
+              <option value="Both">Both</option>
             </select>
           </div>
         )}
